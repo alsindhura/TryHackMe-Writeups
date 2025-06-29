@@ -375,3 +375,269 @@ Is it recommendable to create separate OUs for Servers and Workstations? (yay/na
 
 Answer: `yay`
 
+**Module 6: Group Policies**
+
+So far, we have organised users and computers in OUs just for the sake of it, but the main idea behind this is to be able to deploy different policies for each OU individually. That way, we can push different configurations and security baselines to users depending on their department.
+
+Windows manages such policies through Group Policy Objects (GPO). GPOs are simply a collection of settings that can be applied to OUs. GPOs can contain policies aimed at either users or computers, allowing you to set a baseline on specific machines and identities.
+
+To configure GPOs, you can use the Group Policy Management tool, available from the start menu:
+
+![image](https://github.com/user-attachments/assets/ece781da-29d5-4c45-9de4-99f2e56e0de2)
+
+The first thing you will see when opening it is your complete OU hierarchy, as defined before. To configure Group Policies, you first create a GPO under Group Policy Objects and then link it to the OU where you want the policies to apply. As an example, you can see there are some already existing GPOs in your machine:
+
+![image](https://github.com/user-attachments/assets/cca1318e-9e61-4e0d-b648-6c5150269da4)
+
+We can see in the image above that 3 GPOs have been created. From those, the Default Domain Policy and RDP Policy are linked to the thm.local domain as a whole, and the Default Domain Controllers Policy is linked to the Domain Controllers OU only. Something important to have in mind is that any GPO will apply to the linked OU and any sub-OUs under it. For example, the Sales OU will still be affected by the Default Domain Policy.
+
+Let's examine the Default Domain Policy to see what's inside a GPO. The first tab you'll see when selecting a GPO shows its scope, which is where the GPO is linked in the AD. For the current policy, we can see that it has only been linked to the thm.local domain:
+
+![image](https://github.com/user-attachments/assets/121105b9-1a86-4f42-a4a4-34d5b86c91e5)
+
+As you can see, you can also apply Security Filtering to GPOs so that they are only applied to specific users/computers under an OU. By default, they will apply to the Authenticated Users group, which includes all users/PCs.
+
+The Settings tab includes the actual contents of the GPO and lets us know what specific configurations it applies. As stated before, each GPO has configurations that apply to computers only and configurations that apply to users only. In this case, the Default Domain Policy only contains Computer Configurations:
+
+![image](https://github.com/user-attachments/assets/54d5787d-9dd0-4617-bbc2-b148073d807d)
+
+Feel free to explore the GPO and expand on the available items using the "show" links on the right side of each configuration. In this case, the Default Domain Policy indicates really basic configurations that should apply to most domains, including password and account lockout policies:
+
+![image](https://github.com/user-attachments/assets/1de65bf4-c40c-41c4-9796-6c16dc62675c)
+
+Since this GPO applies to the whole domain, any change to it would affect all computers. Let's change the minimum password length policy to require users to have at least 10 characters in their passwords. To do this, right-click the GPO and select Edit:
+
+![image](https://github.com/user-attachments/assets/ecc5f8bb-b14f-4216-b377-18852b0608a9)
+
+This will open a new window where we can navigate and edit all the available configurations. To change the minimum password length, go to Computer Configurations -> Policies -> Windows Setting -> Security Settings -> Account Policies -> Password Policy and change the required policy value:
+
+![image](https://github.com/user-attachments/assets/795024b7-76b7-4302-9ffc-56d0dd1fd1cd)
+
+As you can see, plenty of policies can be established in a GPO. While explaining every single of them would be impossible in a single room, do feel free to explore a bit, as some of the policies are straightforward. If more information on any of the policies is needed, you can double-click them and read the Explain tab on each of them:
+
+![image](https://github.com/user-attachments/assets/dcb334b5-c999-4106-bd82-f8337f724dbd)
+
+**GPO distribution**
+
+GPOs are distributed to the network via a network share called SYSVOL, which is stored in the DC. All users in a domain should typically have access to this share over the network to sync their GPOs periodically. The SYSVOL share points by default to the C:\Windows\SYSVOL\sysvol\ directory on each of the DCs in our network.
+
+Once a change has been made to any GPOs, it might take up to 2 hours for computers to catch up. If you want to force any particular computer to sync its GPOs immediately, you can always run the following command on the desired computer:
+
+```
+PS C:\> gpupdate /force
+
+```
+**Creating some GPOs for THM Inc.**
+
+As part of our new job, we have been tasked with implementing some GPOs to allow us to:
+
+Block non-IT users from accessing the Control Panel.
+Make workstations and servers lock their screen automatically after 5 minutes of user inactivity to avoid people leaving their sessions exposed.
+Let's focus on each of those and define what policies we should enable in each GPO and where they should be linked.
+
+**Restrict Access to Control Panel**
+
+We want to restrict access to the Control Panel across all machines to only the users that are part of the IT department. Users of other departments shouldn't be able to change the system's preferences.
+
+Let's create a new GPO called Restrict Control Panel Access and open it for editing. Since we want this GPO to apply to specific users, we will look under User Configuration for the following policy:
+
+![image](https://github.com/user-attachments/assets/465857ac-eb81-469c-88b0-b7aa2333a1e1)
+
+Notice we have enabled the Prohibit Access to Control Panel and PC settings policy.
+
+Once the GPO is configured, we will need to link it to all of the OUs corresponding to users who shouldn't have access to the Control Panel of their PCs. In this case, we will link the Marketing, Management and Sales OUs by dragging the GPO to each of them:
+
+```
+PS C:\> gpupdate /force
+```
+
+**Creating some GPOs for THM Inc.**
+
+As part of our new job, we have been tasked with implementing some GPOs to allow us to:
+
+Block non-IT users from accessing the Control Panel.
+Make workstations and servers lock their screen automatically after 5 minutes of user inactivity to avoid people leaving their sessions exposed.
+Let's focus on each of those and define what policies we should enable in each GPO and where they should be linked.
+
+**Restrict Access to Control Panel**
+
+We want to restrict access to the Control Panel across all machines to only the users that are part of the IT department. Users of other departments shouldn't be able to change the system's preferences.
+
+Let's create a new GPO called Restrict Control Panel Access and open it for editing. Since we want this GPO to apply to specific users, we will look under User Configuration for the following policy:
+
+![image](https://github.com/user-attachments/assets/1c894512-9682-459d-b663-672299c11de6)
+
+Notice we have enabled the Prohibit Access to Control Panel and PC settings policy.
+
+Once the GPO is configured, we will need to link it to all of the OUs corresponding to users who shouldn't have access to the Control Panel of their PCs. In this case, we will link the Marketing, Management and Sales OUs by dragging the GPO to each of them:
+
+![image](https://github.com/user-attachments/assets/a5b90e07-624a-4887-9f17-95e712931cf3)
+
+**Auto Lock Screen GPO**
+
+For the first GPO, regarding screen locking for workstations and servers, we could directly apply it over the Workstations, Servers and Domain Controllers OUs we created previously.
+
+While this solution should work, an alternative consists of simply applying the GPO to the root domain, as we want the GPO to affect all of our computers. Since the Workstations, Servers and Domain Controllers OUs are all child OUs of the root domain, they will inherit its policies.
+
+Note: You might notice that if our GPO is applied to the root domain, it will also be inherited by other OUs like Sales or Marketing. Since these OUs contain users only, any Computer Configuration in our GPO will be ignored by them.
+
+Let's create a new GPO, call it Auto Lock Screen, and edit it. The policy to achieve what we want is located in the following route:
+
+![image](https://github.com/user-attachments/assets/a0251630-7001-4ac7-9a10-91f75f920af6)
+
+We will set the inactivity limit to 5 minutes so that computers get locked automatically if any user leaves their session open. After closing the GPO editor, we will link the GPO to the root domain by dragging the GPO to it:
+
+![image](https://github.com/user-attachments/assets/930485f5-c7c8-403e-acfc-ce245380a07f)
+
+Once the GPOs have been applied to the correct OUs, we can log in as any users in either Marketing, Sales or Management for verification. For this task, let's connect via RDP using Mark's credentials:
+
+Username	:Mark
+
+Password	:M4rk3t1ng.21
+
+Note: When connecting via RDP, use THM\Mark as the username to specify you want to log in using the user Mark on the THM domain.
+
+If we try opening the Control Panel, we should get a message indicating this operation is denied by the administrator. You can also wait 5 minutes to check if the screen is automatically locked if you want.
+
+Since we didn't apply the control panel GPO on IT, you should still be able to log into the machine as any of those users and access the control panel. 
+
+Note: If you created and linked the GPOs, but for some reason, they still don't work, remember you can run gpupdate /force to force GPOs to be updated.
+
+**Answer the questions below**
+
+What is the name of the network share used to distribute GPOs to domain machines?
+
+Answer: `SYSVOL`
+
+Can a GPO be used to apply settings to users and computers? (yay/nay)
+
+Answer: `yay`
+
+**Module 7: Authentication Methods**
+
+When using Windows domains, all credentials are stored in the Domain Controllers. Whenever a user tries to authenticate to a service using domain credentials, the service will need to ask the Domain Controller to verify if they are correct. Two protocols can be used for network authentication in windows domains:
+
+Kerberos: Used by any recent version of Windows. This is the default protocol in any recent domain.
+NetNTLM: Legacy authentication protocol kept for compatibility purposes.
+While NetNTLM should be considered obsolete, most networks will have both protocols enabled. Let's take a deeper look at how each of these protocols works.
+
+**Kerberos Authentication**
+
+Kerberos authentication is the default authentication protocol for any recent version of Windows. Users who log into a service using Kerberos will be assigned tickets. Think of tickets as proof of a previous authentication. Users with tickets can present them to a service to demonstrate they have already authenticated into the network before and are therefore enabled to use it.
+
+When Kerberos is used for authentication, the following process happens:
+
+The user sends their username and a timestamp encrypted using a key derived from their password to the Key Distribution Center (KDC), a service usually installed on the Domain Controller in charge of creating Kerberos tickets on the network.
+
+The KDC will create and send back a Ticket Granting Ticket (TGT), which will allow the user to request additional tickets to access specific services. The need for a ticket to get more tickets may sound a bit weird, but it allows users to request service tickets without passing their credentials every time they want to connect to a service. Along with the TGT, a Session Key is given to the user, which they will need to generate the following requests.
+
+Notice the TGT is encrypted using the krbtgt account's password hash, and therefore the user can't access its contents. It is essential to know that the encrypted TGT includes a copy of the Session Key as part of its contents, and the KDC has no need to store the Session Key as it can recover a copy by decrypting the TGT if needed.
+
+![image](https://github.com/user-attachments/assets/f4e6f6e5-2048-40d6-adea-573553c6b35a)
+
+When a user wants to connect to a service on the network like a share, website or database, they will use their TGT to ask the KDC for a Ticket Granting Service (TGS). TGS are tickets that allow connection only to the specific service they were created for. To request a TGS, the user will send their username and a timestamp encrypted using the Session Key, along with the TGT and a Service Principal Name (SPN), which indicates the service and server name we intend to access.
+
+As a result, the KDC will send us a TGS along with a Service Session Key, which we will need to authenticate to the service we want to access. The TGS is encrypted using a key derived from the Service Owner Hash. The Service Owner is the user or machine account that the service runs under. The TGS contains a copy of the Service Session Key on its encrypted contents so that the Service Owner can access it by decrypting the TGS.
+
+![image](https://github.com/user-attachments/assets/8774be19-643e-4b74-bf85-27eea8258fe9)
+
+The TGS can then be sent to the desired service to authenticate and establish a connection. The service will use its configured account's password hash to decrypt the TGS and validate the Service Session Key.
+
+![image](https://github.com/user-attachments/assets/c0e4b826-b0db-4ae8-92b1-c45a9d23a3d5)
+
+**NetNTLM Authentication**
+
+NetNTLM works using a challenge-response mechanism. The entire process is as follows:
+
+![image](https://github.com/user-attachments/assets/3ba47e4d-77f6-4459-9d99-e4ba259a2cf4)
+
+The client sends an authentication request to the server they want to access.
+The server generates a random number and sends it as a challenge to the client.
+The client combines their NTLM password hash with the challenge (and other known data) to generate a response to the challenge and sends it back to the server for verification.
+The server forwards the challenge and the response to the Domain Controller for verification.
+The domain controller uses the challenge to recalculate the response and compares it to the original response sent by the client. If they both match, the client is authenticated; otherwise, access is denied. The authentication result is sent back to the server.
+The server forwards the authentication result to the client.
+Note that the user's password (or hash) is never transmitted through the network for security.
+
+Note: The described process applies when using a domain account. If a local account is used, the server can verify the response to the challenge itself without requiring interaction with the domain controller since it has the password hash stored locally on its SAM.
+
+**Answer the questions below**
+
+Will a current version of Windows use NetNTLM as the preferred authentication protocol by default? (yay/nay)
+
+Answer: `nay`
+
+When referring to Kerberos, what type of ticket allows us to request further tickets known as TGS?
+
+Answer: `Ticket Granting Ticket`
+
+When using NetNTLM, is a user's password transmitted over the network at any point? (yay/nay)
+
+Answer: `nay`
+
+**Module 8: Trees, Forests and Trusts**
+
+So far, we have discussed how to manage a single domain, the role of a Domain Controller and how it joins computers, servers and users.
+
+![image](https://github.com/user-attachments/assets/5e09a920-4056-447d-be27-7eaaa7c94cd9)
+
+As companies grow, so do their networks. Having a single domain for a company is good enough to start, but in time some additional needs might push you into having more than one.
+
+**Trees**
+
+Imagine, for example, that suddenly your company expands to a new country. The new country has different laws and regulations that require you to update your GPOs to comply. In addition, you now have IT people in both countries, and each IT team needs to manage the resources that correspond to each country without interfering with the other team. While you could create a complex OU structure and use delegations to achieve this, having a huge AD structure might be hard to manage and prone to human errors.
+
+Luckily for us, Active Directory supports integrating multiple domains so that you can partition your network into units that can be managed independently. If you have two domains that share the same namespace (thm.local in our example), those domains can be joined into a Tree.
+
+If our thm.local domain was split into two subdomains for UK and US branches, you could build a tree with a root domain of thm.local and two subdomains called uk.thm.local and us.thm.local, each with its AD, computers and users:
+
+![image](https://github.com/user-attachments/assets/8635901d-b4c9-44aa-a992-b020e5a31048)
+
+This partitioned structure gives us better control over who can access what in the domain. The IT people from the UK will have their own DC that manages the UK resources only. For example, a UK user would not be able to manage US users. In that way, the Domain Administrators of each branch will have complete control over their respective DCs, but not other branches' DCs. Policies can also be configured independently for each domain in the tree.
+
+A new security group needs to be introduced when talking about trees and forests. The Enterprise Admins group will grant a user administrative privileges over all of an enterprise's domains. Each domain would still have its Domain Admins with administrator privileges over their single domains and the Enterprise Admins who can control everything in the enterprise.
+
+**Forests**
+
+The domains you manage can also be configured in different namespaces. Suppose your company continues growing and eventually acquires another company called MHT Inc. When both companies merge, you will probably have different domain trees for each company, each managed by its own IT department. The union of several trees with different namespaces into the same network is known as a forest.
+
+![image](https://github.com/user-attachments/assets/8b6b5995-73d9-476a-a830-15249071a0a0)
+
+**Trust Relationships**
+
+Having multiple domains organised in trees and forest allows you to have a nice compartmentalised network in terms of management and resources. But at a certain point, a user at THM UK might need to access a shared file in one of MHT ASIA servers. For this to happen, domains arranged in trees and forests are joined together by trust relationships.
+
+In simple terms, having a trust relationship between domains allows you to authorise a user from domain THM UK to access resources from domain MHT EU.
+
+The simplest trust relationship that can be established is a one-way trust relationship. In a one-way trust, if Domain AAA trusts Domain BBB, this means that a user on BBB can be authorised to access resources on AAA:
+
+![image](https://github.com/user-attachments/assets/297c8267-24b4-4b51-ad6a-f79f6654fab8)
+
+The direction of the one-way trust relationship is contrary to that of the access direction.
+
+Two-way trust relationships can also be made to allow both domains to mutually authorise users from the other. By default, joining several domains under a tree or a forest will form a two-way trust relationship.
+
+It is important to note that having a trust relationship between domains doesn't automatically grant access to all resources on other domains. Once a trust relationship is established, you have the chance to authorise users across different domains, but it's up to you what is actually authorised or not.
+
+**Answer the questions below**
+
+What is a group of Windows domains that share the same namespace called?
+
+Answer: `Tree`
+
+What should be configured between two domains for a user in Domain A to access a resource in Domain B?
+
+Answer: `A Trust Relationship`
+
+
+**Module 9: Conclusion**
+
+In this room, we have shown the basic components and concepts related to Active Directories and Windows Domains. Keep in mind that this room should only serve as an introduction to the basic concepts, as there's quite a bit more to explore to implement a production-ready Active Directory environment.
+
+If you are interested in learning how to secure an Active Directory installation, be sure to check out the [Active Directory Hardening Room](https://tryhackme.com/room/activedirectoryhardening). If, on the other hand, you'd like to know how attackers can take advantage of common AD misconfigurations and other AD hacking techniques, the [Compromising Active Directory module](https://tryhackme.com/module/hacking-active-directory) is the way to go.
+
+**Answer the questions below**
+
+Click and continue learning!
+
+Answer: No answer needed
