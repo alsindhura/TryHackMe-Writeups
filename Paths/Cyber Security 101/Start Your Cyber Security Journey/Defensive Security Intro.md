@@ -41,7 +41,7 @@ There is much more to defensive security. Aside from the above, we will also cov
 
 **Answer the questions below**
 
-Which team focuses on defensive security?
+_Which team focuses on defensive security?_
 
 Answer: `Blue Team`
 
@@ -146,15 +146,15 @@ Malware analysis aims to learn about such malicious programs using various means
 
 **Answer the questions below**
 
-What would you call a team of cyber security professionals that monitors a network and its systems for malicious events?
+_What would you call a team of cyber security professionals that monitors a network and its systems for malicious events?_
 
 Answer: `Security Operations Center`
 
-What does DFIR stand for?
+_What does DFIR stand for?_
 
 Answer: `Digital Forensics and Incident Response`
 
-Which kind of malware requires the user to pay money to regain access to their files?
+_Which kind of malware requires the user to pay money to regain access to their files?_
 
 Answer: `Ransomware`
 
@@ -214,7 +214,8 @@ Continue learning by checking out the next room in this series, "Search Skills."
 
 **Answer the questions below**
 
-What is the flag that you obtained by following along?
+_What is the flag that you obtained by following along?_
+
 Answer: `THM{THREAT-BLOCKED}`
 
 --------------------------------------------------------------------------------------------------------------------------------------------
