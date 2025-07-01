@@ -45,6 +45,7 @@ Password: Tryhackme123!
 What is the default command line interpreter in the Windows environment?
 
 Answer: `cmd.exe`
+----------------------------------------------------------------------------------------------------------------------------------------------
 
 **Module 2: Basic System Information**
 
@@ -118,6 +119,8 @@ What is the hostname of the Windows VM?
 Answer: ` WINSRV2022-CORE`
 
 ![Screenshot from 2025-06-29 19-30-07](https://github.com/user-attachments/assets/92047be2-5c3e-40af-8bd2-36794656862c)
+
+---------------------------------------------------------------------------------------------------------------------------------------------
 
 **Module 3: Network Troubleshooting**
 
@@ -313,8 +316,9 @@ Command: `ipconfig`
 
 ![Screenshot from 2025-06-29 20-58-49](https://github.com/user-attachments/assets/7bf88fab-dd7b-4ece-8a2c-8a9ee3a7de15)
 
+----------------------------------------------------------------------------------------------------------------------------------------------
 
-**Task 4: File and Disk Management**
+**Module 4: File and Disk Management**
 
 You have learned to look up basic system information and check the network configuration. Now, let’s discover how to browse the directories and move files around.
 
@@ -519,7 +523,9 @@ Now we can read the new file (copy) and get the flag
 
 ![3](https://github.com/user-attachments/assets/eddad896-3393-4201-9b7f-0c05ceaf8ffb)
 
-**Task 5: Task and Process Management**
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 5: Task and Process Management**
 
 You must be familiar with MS Windows Task Manager and might be familiar with killing non-responsive processes. Let’s discover how to achieve a similar functionality using the command line.
 
@@ -571,7 +577,9 @@ What command can you use to kill the process with PID 1516?
 
 Answer: `taskkill /PID 1516`
 
-**Task  6: Conclusion**
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module  6: Conclusion**
 
 In this room, we focused on the most practical commands for accessing a networked system over the command line.
 
@@ -611,3 +619,6 @@ Answer: `shutdown /a`
 Type `shutdown /? | more` in the terminal and we see an option `shutdown /a` in the list for abort system shutdown
 
 ![Screenshot from 2025-06-30 16-55-23](https://github.com/user-attachments/assets/fa385321-5526-4252-8420-190669730de3)
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------
