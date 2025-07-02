@@ -201,7 +201,7 @@ Now on the screen we are listed 4 employees whom we can report this malicious IP
 ![Screenshot from 2025-06-24 16-33-52](https://github.com/user-attachments/assets/c04b65f6-1090-4805-9867-a9188f31d4ff)
 
 After reporting the IP Address to SOC Team Lead we were given permission to add the IP Address to Firewall Block List and we enter the IP Address and click on `Block IP Address` button
-![image](https://github.com/user-attachments/assets/6a4e845c-db49-4793-ba67-c78e06290c69)
+![block](https://github.com/user-attachments/assets/a74595df-4793-49a4-8f8d-e61f04849328)
 
 And now we got the flag `THM{THREAT-BLOCKED}`
 ![Screenshot from 2025-06-24 16-38-14](https://github.com/user-attachments/assets/a069c604-a94f-493d-be17-3b8758a0fe5b)
