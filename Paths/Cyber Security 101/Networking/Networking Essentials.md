@@ -263,10 +263,124 @@ _**Explanation:**_
 
 From the below image, we can see `Data(40 bytes)` and 40 is the answer
 
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ![image](https://github.com/user-attachments/assets/af976734-ba6e-4c2b-ba25-73a45b9c3784)
 
 _Which IP header field does the traceroute command require to become zero?_
 
 Answer: `TTL`
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 5: Routing**
+
+Consider the network diagram shown below. It only has three networks; however, how can the Internet figure out how to deliver a packet from Network 1 to Network 2 or Network 3? Although this is an overly simplified diagram, we need some algorithm to figure out how to connect Network 1 to Network 2 and Network 3 and vice versa.
+
+![5f04259cf9bf5b57aed2c476-1719849271800](https://github.com/user-attachments/assets/eb081d6a-c689-4375-a11f-62905c510310)
+
+
+Let’s consider a more detailed diagram. The Internet would be millions of routers and billions of devices. The network below is a tiny subset of the Internet. The mobile user can reach the web server; however, for this to happen, each router across the path needs to send the packets via the appropriate link. Obviously, there is more than one path, i.e., route, connecting the mobile user and the web server. We need a routing algorithm for the router to figure out which link to use.
+
+![image](https://github.com/user-attachments/assets/74ef48a1-e077-4439-bbb3-69ab9d482460)
+
+The routing algorithms are beyond the scope of this room; however, we will briefly describe a few routing protocols so that you become familiar with their names:
+
+- **_OSPF_** (Open Shortest Path First): OSPF is a routing protocol that allows routers to share information about the network topology and calculate the most efficient paths for data transmission. It does this by having routers exchange updates about the state of their connected links and networks. This way, each router has a complete map of the network and can determine the best routes to reach any destination.
+
+- **_EIGRP_** (Enhanced Interior Gateway Routing Protocol): EIGRP is a Cisco proprietary routing protocol that combines aspects of different routing algorithms. It allows routers to share information about the networks they can reach and the cost (like bandwidth or delay) associated with those routes. Routers then use this information to choose the most efficient paths for data transmission.
+  
+- **_BGP_** (Border Gateway Protocol): BGP is the primary routing protocol used on the Internet. It allows different networks (like those of Internet Service Providers) to exchange routing information and establish paths for data to travel between these networks. BGP helps ensure data can be routed efficiently across the Internet, even when traversing multiple networks.
+
+- **_RIP_** (Routing Information Protocol): RIP is a simple routing protocol often used in small networks. Routers running RIP share information about the networks they can reach and the number of hops (routers) required to get there. As a result, each router builds a routing table based on this information, choosing the routes with the fewest hops to reach each destination.
+
+**Answer the questions below**
+
+_Which routing protocol discussed in this task is a Cisco proprietary protocol?_
+
+Answer: `EIGRP`
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 6: NAT**
+
+As discussed in the Networking Concepts room, we calculated that IPv4 can support a maximum of four billion devices. With the increase in the number of devices connected to the Internet, from computers and smartphones to security cameras and washing machines, it was clear that the IPv4 address space would be depleted quickly. One solution to address depletion is Network Address Translation (NAT).
+
+The idea behind NAT lies in using one public IP address to provide Internet access to many private IP addresses. In other words, if you are connecting a company with twenty computers, you can provide Internet access to all twenty computers by using a single public IP address instead of twenty public IP addresses. (Note: Technically speaking, the number of IP addresses is always expressed as a power of two. To be technically accurate, with NAT, you reserve two public IP addresses instead of thirty-two. Consequently, you would have saved thirty public IP addresses.)
+
+Unlike routing, which is the natural way to route packets to the destination host, routers that support NAT must find a way to track ongoing connections. Consequently, NAT-supporting routers maintain a table translating network addresses between internal and external networks. Generally, the internal network would use a private IP address range, while the external network would use a public IP address.
+
+In the diagram below, multiple devices access the Internet via a router that supports NAT. The router maintains a table that maps the internal IP address and port number with its external IP address and port number. For instance, the laptop might establish a connection with some web server. From the laptop perspective, the connection is initiated from its IP address 192.168.0.129 from TCP source port number 15401; however, the web server will see this same connection as being established from 212.3.4.5 and TCP port number 19273, as shown in the translation table. The router does this address translation seamlessly.
+
+![image](https://github.com/user-attachments/assets/fcf86333-d378-40c0-8862-5fee8c10f87c)
+
+**Answer the questions below**
+
+_In the network diagram above, what is the public IP that the phone will appear to use when accessing the Internet?_
+
+Answer: `212.3.4.5`
+
+_Assuming that the router has infinite processing power, approximately speaking, how many thousand simultaneous TCP connections can it maintain?_
+
+Answer: `65` (i.e 65,535 ports)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 7: Closing Notes**
+
+This room introduced various protocols that we constantly use directly or indirectly. We have covered ICMP, DHCP, ARP, NAT, and routing. Although we use the Internet daily without coming across most of this room’s acronyms, these protocols are the foundation for a functional network.
+
+**Answer the questions below**
+
+_Click on the View Site button to access the related site. Please follow the instructions on the site to obtain the flag._
+
+Answer: `THM{computer_is_happy}`
+
+**_Practicals_**
+
+When we click on `View Site` we see this page
+
+![image](https://github.com/user-attachments/assets/9d5a6d1b-d0b4-411e-8199-91b7cec02579)
+
+And the first question is as follows:
+
+_I want to find out the DNS server and default route on a network automatically. Which protocol should I use?_
+
+![image](https://github.com/user-attachments/assets/f8392c7b-acb8-4341-9851-ba91620a7263)
+
+Answer: `DHCP`
+
+2nd question:
+
+_I want to find another host's hardware (MAC) address on the network. Which protocol lets me get this information?_
+
+![image](https://github.com/user-attachments/assets/e06d9200-dd11-4c28-9f64-b319c60a3c2b)
+
+Answer: `ARP`
+
+3rd question:
+
+_I am curious about tracing the route of packets as they travel to their destination server. What protocol would let me discover the path?_
+
+![image](https://github.com/user-attachments/assets/873389eb-011a-4184-8e9e-85ec2c2b6257)
+
+
+Answer: `ICMP`
+
+4th question:
+
+_We need to give 25 devices Internet access; however, we only have one public IP address. What can we use to allow multiple private IP addresses to use a single public IP address?_
+
+![image](https://github.com/user-attachments/assets/5bc0d737-147d-417c-8a4d-8107a551b18e)
+
+Answer: `NAT`
+
+After answering all these questions correctly, we get the flag
+
+![image](https://github.com/user-attachments/assets/e61b3a04-9d91-480a-84b1-0dfaf080fd2d)
+
+
+_It is time to join [Networking Core Protocols](https://tryhackme.com/room/networkingcoreprotocols)._
+
+Answer: `No answer needed`
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
