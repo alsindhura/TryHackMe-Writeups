@@ -90,8 +90,8 @@ Answer: `self-signed certificate`
 
 
 **Module 3: HTTPS**
-**
-HTTP**
+
+**HTTP**
 
 As we studied in the [Networking Core Protocols](https://tryhackme.com/r/room/networkingcoreprotocols) room, HTTP relies on TCP and uses port 80 by default. We also saw how all HTTP traffic was sent in cleartext for anyone to intercept and monitor. The screenshot below is from the previous room, and it gives a clear idea of how an adversary can easily read all the traffic exchanged between the client and the server.
 
@@ -342,3 +342,45 @@ Clicking “Open Transport Layer Security preferences” will show a dialog box.
 
 ![image](https://github.com/user-attachments/assets/8fca3297-c222-4e85-a4ad-0cd00f90756d)
 
+
+
+
+**_Explanation:_**
+
+Once we click on "View Site" we see a split view like this
+
+![image](https://github.com/user-attachments/assets/416bfe0b-c8d5-4a98-909d-1f5a689c4c22)
+
+Then open "Wireshark" and open the file named `randy-chromium.pcapng` from Documents folder
+
+![image](https://github.com/user-attachments/assets/50b2b528-4458-4200-9ba1-748c1b78a97e)
+
+![image](https://github.com/user-attachments/assets/975df40c-d584-4ca3-9c19-76942df5147b)
+
+![image](https://github.com/user-attachments/assets/5cc5b445-023f-4a69-9eaa-8386549611a7)
+
+Then RIght click anywhere and select `Protocol Preferences` and from that select `Transport Layer Security` and from that select `Open Transport Layer Security preferences`
+
+![image](https://github.com/user-attachments/assets/83571988-dde7-457b-b7cb-db7b434ee6f5)
+
+Now we see somthing like this
+
+![image](https://github.com/user-attachments/assets/87e83b3a-0185-4921-bdfb-91d467cc6130)
+
+Now we click on browse next to `Pre-Master-Secret log filename` and we then select `ssl-key.log` 
+
+![image](https://github.com/user-attachments/assets/b900c1a7-2c79-414b-bf41-c3ec7edcc9b9)
+
+Checking the packet 366 we find a flag
+
+![image](https://github.com/user-attachments/assets/ee4e30ee-c2ef-4e1f-a59d-58031817a79b)
+
+**Answer the questions below**
+
+_One of the packets contains login credentials. What password did the user submit?_
+
+Answer: `THM{B8WM6P}`
+
+Hint: `Check packet number 366.`
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
