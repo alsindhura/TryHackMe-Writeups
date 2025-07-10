@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/bb6f2ba9-0c37-49d6-9b4e-21d14989bbc8)Link: https://tryhackme.com/room/wiresharkthebasics
+Link: https://tryhackme.com/room/wiresharkthebasics (Premium Room)
 
 ![image](https://github.com/user-attachments/assets/5b30fc29-47c1-4b95-acac-fedc132d5d3e)
 
