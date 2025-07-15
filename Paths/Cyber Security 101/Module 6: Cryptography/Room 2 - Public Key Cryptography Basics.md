@@ -639,6 +639,7 @@ During CTFs, penetration testing, and red teaming exercises, SSH keys are an exc
 
 Answer: `RSA`
 
+
 **Summary of these protocols**
 
 ```
