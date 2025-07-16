@@ -661,3 +661,216 @@ Answer: `RSA`
 
     All HTTP traffic (requests, responses) is now encrypted with AES using that session key.
 ```
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 6: Digital Signatures and Certificates**
+
+In the “analogue” world, you are asked to sign a paper now and then. When you visit the bank to open a savings account, you are most likely asked to sign several documents. When you want to create an account at the local library, you will be asked to fill out and sign the application. The purpose can vary depending on the situation. For example, it can confirm that you agree to the terms and conditions, authorise a transaction, or acknowledge receiving an item. In the “digital” world, you cannot use your signature, stamp or fingerprint; you need a digital signature.
+
+**What’s a Digital Signature?**
+
+Digital signatures provide a way to verify the authenticity and integrity of a digital message or document. Proving the authenticity of files means we know who created or modified them. Using asymmetric cryptography, you produce a signature with your private key, which can be verified using your public key. Only you should have access to your private key, which proves you signed the file. In many modern countries, digital and physical signatures have the same legal value.
+
+The simplest form of digital signature is encrypting the document with your private key. If someone wants to verify this signature, they would decrypt it with your public key and check if the files match. This process is shown in the image below.
+
+<img width="1840" height="1040" alt="image" src="https://github.com/user-attachments/assets/b59324c5-4570-4dbc-a248-1257266f41a7" />
+
+Some articles use terms such as electronic signature and digital signature interchangeably. They refer to pasting an image of a signature on top of a document. This approach does not prove the document’s integrity, as anyone can copy and paste an image.
+
+In this task, we use the term digital signature to refer to signing a document using a private key or a certificate. This process is similar to the image shown above, where Bob encrypts a hash of his document and shares it with Alice, along with the original document. Alice can decrypt the encrypted hash and compare it with the hash of the file she received. This approach proves the document’s integrity, unlike pasting a fancy image of a signature. We will cover hashing in the Hashing Basics room.
+
+**Certificates: Prove Who You Are!**
+
+Certificates are an essential application of public key cryptography, and they are also linked to digital signatures. A common place where they’re used is for HTTPS. How does your web browser know that the server you’re talking to is the real tryhackme.com?
+
+The answer lies in certificates. The web server has a certificate that says it is the real tryhackme.com. The certificates have a chain of trust, starting with a root CA (Certificate Authority). From install time, your device, operating system, and web browser automatically trust various root CAs. Certificates are trusted only when the Root CAs say they trust the organisation that signed them. In a way, it is a chain; for example, the certificate is signed by an organisation, the organisation is trusted by a CA, and the CA is trusted by your browser. Therefore, your browser trusts the certificate. In general, there are long chains of trust. You can take a look at the certificate authorities trusted by Mozilla Firefox [here](https://wiki.mozilla.org/CA/Included_Certificates) and by Google Chrome [here](https://chromium.googlesource.com/chromium/src/+/main/net/data/ssl/chrome_root_store/root_store.md).
+
+Let’s say you have a website and want to use HTTPS. This step requires having a TLS certificate. You can get one from the various certificate authorities for an annual fee. Furthermore, you can get your own TLS certificates for domains you own using [Let's Encrypt](https://letsencrypt.org/) for free. If you run a website, it’s worth setting up and switching to HTTPS, as any modern website would do.
+
+
+**Answer the questions below**
+
+1. _What does a remote web server use to prove itself to the client?_
+
+Answer: `Certificate`
+
+2. _What would you use to get a free TLS certificate for your website?_
+
+Answer: `Let's Encrypt`
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 7: PGP and GPG**
+
+PGP stands for Pretty Good Privacy. It’s software that implements encryption for encrypting files, performing digital signing, and more. GnuPG or GPG is an open-source implementation of the OpenPGP standard.
+
+GPG is commonly used in email to protect the confidentiality of the email messages. Furthermore, it can be used to sign an email message and confirm its integrity.
+
+Below is an example of generating `GPG`. You are asked about the purpose of using gpg, whether signing only or signing and encrypting. Besides selecting the cryptographic algorithm, we needed to choose an expiry date for the generated key. Finally, we provided some information about us: our name, email address, and a comment usually about the purpose of this key.
+
+```        
+gpg --full-gen-key
+gpg (GnuPG) 2.4.4; Copyright (C) 2024 g10 Code GmbH
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Please select what kind of key you want:
+   (1) RSA and RSA
+   (2) DSA and Elgamal
+   (3) DSA (sign only)
+   (4) RSA (sign only)
+   (9) ECC (sign and encrypt) *default*
+  (10) ECC (sign only)
+  (14) Existing key from card
+Your selection? 9
+Please select which elliptic curve you want:
+   (1) Curve 25519 *default*
+   (4) NIST P-384
+   (6) Brainpool P-256
+Your selection? 1
+Please specify how long the key should be valid.
+         0 = key does not expire
+      <n>  = key expires in n days
+      <n>w = key expires in n weeks
+      <n>m = key expires in n months
+      <n>y = key expires in n years
+Key is valid for? (0) 
+Key does not expire at all
+Is this correct? (y/N) y
+
+GnuPG needs to construct a user ID to identify your key.
+
+Real name: strategos
+Email address: strategos@tryhackme.thm
+[...]
+pub   ed25519 2024-08-29 [SC]
+      AB7E6AA87B6A8E0D159CA7FFE5E63DBD5F83D5ED
+uid                      Strategos <strategos@tryhackme.thm>
+sub   cv25519 2024-08-29 [E]
+```
+
+You may need to use GPG to decrypt files in CTFs. With PGP/GPG, private keys can be protected with passphrases in a similar way that we protect SSH private keys. If the key is passphrase protected, you can attempt to crack it using John the Ripper and `gpg2john`. The key provided in this task is not protected with a passphrase. The man page for GPG can be found online [here](https://www.gnupg.org/gph/de/manual/r1023.html).
+
+**Practi﻿cal Example**
+
+Now that you have your GPG key pair, you can share the public key with your contacts. Whenever your contacts want to communicate securely, they encrypt their messages to you using your public key. To decrypt the message, you will have to use your private key. Due to the importance of the GPG keys, it is vital that you keep a backup copy in a secure location.
+
+Let’s say you got a new computer. All you need to do is import your key, and you can start decrypting your received messages again:
+
+- You would use `gpg --import backup.key` to import your key from backup.key
+
+- To decrypt your messages, you need to issue `gpg --decrypt confidential_message.gpg`
+
+**Extra Info**
+
+# 🔐 PGP vs GPG – Notes
+
+## ✅ What Are They?
+
+| Term | Full Form             | Description                                  |
+|------|------------------------|----------------------------------------------|
+| PGP  | Pretty Good Privacy    | Original encryption program by Phil Zimmermann (1991), may be proprietary |
+| GPG  | GNU Privacy Guard      | Open-source, free implementation of OpenPGP standard |
+
+---
+
+## 🔄 Key Differences
+
+| Feature          | PGP                        | GPG                                |
+|------------------|-----------------------------|-------------------------------------|
+| License          | Often proprietary           | Open-source (GPL)                   |
+| OpenPGP Standard | Not always compliant        | Fully compliant                     |
+| Tools            | PGP software                | `gpg` command-line tool             |
+| Usage Cost       | May require license         | Free                                |
+
+---
+
+## 🎯 What They’re Used For
+
+| Use Case              | Description                                                   |
+|------------------------|---------------------------------------------------------------|
+| 📧 Email encryption    | Secure and private email (e.g., Thunderbird + Enigmail/GPG)   |
+| 📂 File encryption     | Encrypt files for secure storage or transfer                  |
+| ✅ Digital signatures   | Sign files to verify authenticity and integrity               |
+| 🔑 Web of Trust         | Share and sign public keys to establish trust relationships   |
+
+---
+
+## ❌ What They’re NOT Used For
+
+| Technology | Purpose                                  | Protocols Used                        |
+|------------|------------------------------------------|----------------------------------------|
+| SSH        | Secure remote access                     | Uses SSH key pairs (not GPG/PGP)       |
+| HTTPS/TLS  | Secure web communication                 | Uses RSA, DH, ECC, X.509 certificates  |
+| VPN        | Secure network tunneling                 | Uses IPSec, SSL/TLS, WireGuard, etc.   |
+
+---
+
+## 🧠 TL;DR
+
+- **PGP/GPG**: Used for **email & file encryption, signing, key exchange between users**
+- **Not used** for network protocols like **SSH, TLS, or VPN**
+
+PGP/GPG is not a single algorithm — it’s a system that uses RSA (or sometimes ElGamal, ECC) under the hood for encryption and signatures.
+
+GPG = a wrapper system that may use RSA inside it
+
+GPG can’t replace RSA in protocols like SSH, TLS, or VPN
+
+But for files, emails, signatures, GPG (with RSA keys) is your tool!
+
+**Answer the questions below**
+
+1. _Use GPG to decrypt the message in `~/Public-Crypto-Basics/Task-7`. What secret word does the message hold?_
+
+Answer: `Pineapple`
+
+**_Explanation_**
+
+First we start the machine
+
+Now we `cd ~/Public-Crypto-Basics/Task-7`
+
+<img width="914" height="69" alt="image" src="https://github.com/user-attachments/assets/189e3ffa-7d54-4c24-82c7-3d97f6fef064" />
+
+We can see that we got two files `message.gpg` and `tryhackme.key`
+
+<img width="921" height="132" alt="image" src="https://github.com/user-attachments/assets/54fbb97c-e24e-49b1-94ff-3857dc48c0e1" />
+
+First we import the private key as mentioned in the Practical Example session using the command
+
+`gpg --import tryhackme.key`
+
+<img width="916" height="388" alt="image" src="https://github.com/user-attachments/assets/c5023818-27fd-4a9a-a4f0-e883de953bc6" />
+
+And now we decrypt the message using the command below and then we can see the secret message
+
+`gpg --decrypt message.gpg`
+
+<img width="916" height="516" alt="image" src="https://github.com/user-attachments/assets/69446eb6-ed37-4e51-abf3-42b0a10f2780" />
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 8: Conclusion**
+
+We have defined **cryptography** as the science of securing communication in the presence of adversaries. Another important science that studies how to break or bypass cryptographic systems is **cryptanalysis**. As for trying every possible password combination, we call that a **brute-force attack**. However, when we know that the password is most likely a dictionary word, it will make more sense to try words from a dictionary instead of every possible password combination; this is called a **dictionary attack**.
+
+- **_Cryptography_** is the science of securing communication and data using codes and ciphers.
+
+- **_Cryptanalysis_** is the study of methods to break or bypass cryptographic security systems without knowing the key.
+
+- **_Brute-Force Attack_** is an attack method that involves trying every possible key or password to decrypt a message.
+
+- **_Dictionary Attack_** is an attack method where the attacker tries dictionary words or combinations of them.
+
+This room focused on public key cryptography, asymmetric cryptography, and key exchange. It gave you an essential understanding of RSA, Diffie-Hellman, SSH key pairs, digital signatures and certificates, and OpenPGP. Now, it is time to learn about hashing.
+
+
+**Answer the questions below**
+
+1. _Ensure you have noted the various techniques and tools discussed in this room._
+
+Answer: No Answer needed
+
+--------------------------------------------------------------------------------------------------------------------------------------------
