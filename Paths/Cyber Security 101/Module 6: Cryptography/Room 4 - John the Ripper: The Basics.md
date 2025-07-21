@@ -335,3 +335,268 @@ We use the following command
 <img width="908" height="393" alt="image" src="https://github.com/user-attachments/assets/0a7848eb-ba56-4116-ba4a-6f155fdad69e" />
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 5: Cracking Windows Authentication Hashes**
+
+Now that we understand the basic syntax and usage of John the Ripper, let’s move on to cracking something a little bit more complicated, something that you may even want to attempt if you’re on an actual Penetration Test or Red Team engagement. Authentication hashes are the hashed versions of passwords stored by operating systems; it is sometimes possible to crack them using our brute-force methods. To get your hands on these hashes, you must often already be a privileged user, so we will explain some of the hashes we plan on cracking as we attempt them.
+
+**NTHash / NTLM**
+
+NThash is the hash format modern Windows operating system machines use to store user and service passwords. It’s also commonly referred to as NTLM, which references the previous version of Windows format for hashing passwords known as LM, thus NT/LM.
+
+A bit of history: the NT designation for Windows products originally meant New Technology. It was used starting with Windows NT to denote products not built from the MS-DOS Operating System. Eventually, the “NT” line became the standard Operating System type to be released by Microsoft, and the name was dropped, but it still lives on in the names of some Microsoft technologies.
+
+In Windows, SAM (Security Account Manager) is used to store user account information, including usernames and hashed passwords. You can acquire NTHash/NTLM hashes by dumping the SAM database on a Windows machine, using a tool like Mimikatz, or using the Active Directory database: `NTDS.dit`. You may not have to crack the hash to continue privilege escalation, as you can often conduct a “pass the hash” attack instead, but sometimes, hash cracking is a viable option if there is a weak password policy.
+Practical
+
+Now that you know the theory behind it, see if you can use the techniques we practised in the last task and the knowledge of what type of hash this is to crack the `ntlm.txt` file! The file is located in `~/John-the-Ripper-The-Basics/Task05/`.
+
+**Answer the questions below**
+
+1. _What do we need to set the `--format` flag to in order to crack this hash?_
+
+Answer: `nt`
+
+**_Explanation:_**
+
+We visit the site and we find the format of the hash
+
+<img width="916" height="126" alt="image" src="https://github.com/user-attachments/assets/af927247-9e5e-45a0-8491-f0ca4d6a5b8c" />
+
+<img width="707" height="116" alt="image" src="https://github.com/user-attachments/assets/78749e46-ac49-4e4f-ad77-4adb21845345" />
+
+
+2. _What is the cracked value of this password?_
+
+Answer: `mushroom`
+
+**_Explanation:_**
+
+we use the following command to crack the hash
+
+`john --format=nt --wordlist=/usr/share/wordlists/rockyou.txt ntlm.txt`
+
+<img width="920" height="388" alt="image" src="https://github.com/user-attachments/assets/0b399d08-9221-40ab-96be-942cc22628cc" />
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 6: Cracking /etc/shadow Hashes**
+
+**Cracking Hashes from /etc/shadow**
+
+The `/etc/shadow` file is the file on Linux machines where password hashes are stored. It also stores other information, such as the date of last password change and password expiration information. It contains one entry per line for each user or user account of the system. This file is usually only accessible by the root user, so you must have sufficient privileges to access the hashes. However, if you do, there is a chance that you will be able to crack some of the hashes.
+
+
+**Unshadowing**
+
+John can be very particular about the formats it needs data in to be able to work with it; for this reason, to crack `/etc/shadow` passwords, you must combine it with the `/etc/passwd` file for John to understand the data it’s being given. To do this, we use a tool built into the John suite of tools called `unshadow`. The basic syntax of `unshadow` is as follows:
+
+`unshadow [path to passwd] [path to shadow]`
+
+- `unshadow`: Invokes the unshadow tool
+
+- `[path to passwd]`: The file that contains the copy of the /etc/passwd file you’ve taken from the target machine
+
+- `[path to shadow]`: The file that contains the copy of the /etc/shadow file you’ve taken from the target machine
+
+**Example Usage:**
+
+`unshadow local_passwd local_shadow > unshadowed.txt`
+
+**Note on the files**
+
+When using `unshadow`, you can either use the entire `/etc/passwd` and `/etc/shadow` files, assuming you have them available, or you can use the relevant line from each, for example:
+
+**FILE 1 - local_passwd**
+
+Contains the `/etc/passwd` line for the root user:
+
+`root:x:0:0::/root:/bin/bash`
+
+**FILE 2 - local_shadow**
+
+Contains the `/etc/shadow` line for the root user: `root:$6$2nwjN454g.dv4HN/$m9Z/r2xVfweYVkrr.v5Ft8Ws3/YYksfNwq96UL1FX0OJjY1L6l.DS3KEVsZ9rOVLB/ldTeEL/OIhJZ4GMFMGA0:18576::::::`
+
+**Cracking**
+
+We can then feed the output from `unshadow`, in our example use case called `unshadowed.txt`, directly into John. We should not need to specify a mode here as we have made the input specifically for John; however, in some cases, you will need to specify the format as we have done previously using: `--format=sha512crypt`
+
+`john --wordlist=/usr/share/wordlists/rockyou.txt --format=sha512crypt unshadowed.txt`
+
+**Practical**
+
+Now, see if you can follow the process to crack the password hash of the root user provided in the `etchashes.txt` file. Good luck! The files are located in `~/John-the-Ripper-The-Basics/Task06/`.
+
+**Answer the questions below**
+
+1. _What is the root password?_
+
+Answer: `1234`
+
+**_Explanation:_**
+
+We will use unshadow command and create a text.txt file with the command below:
+
+`unshadow local_passwd local_shadow > text.txt`
+
+Now we will use john on text.txt file and get the password
+
+`john --wordlist=/usr/share/wordlists/rockyou.txt text.txt`
+
+<img width="913" height="517" alt="image" src="https://github.com/user-attachments/assets/13a35c79-c5c2-4a36-8522-c950a7edf93f" />
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+**Module 7: Single Crack Mode**
+
+So far, we’ve been using John’s wordlist mode to brute-force simple and not-so-simple hashes. But John also has another mode, called the Single Crack mode. In this mode, John uses only the information provided in the username to try and work out possible passwords heuristically by slightly changing the letters and numbers contained within the username.
+
+**Word Mangling**
+
+The best way to explain Single Crack mode and word mangling is to go through an example:
+
+Consider the username “Markus”.
+
+Some possible passwords could be:
+
+- Markus1, Markus2, Markus3 (etc.)
+
+- MArkus, MARkus, MARKus (etc.)
+
+- Markus!, Markus$, Markus* (etc.)
+
+This technique is called word mangling. John is building its dictionary based on the information it has been fed and uses a set of rules called “mangling rules,” which define how it can mutate the word it started with to generate a wordlist based on relevant factors for the target you’re trying to crack. This exploits how poor passwords can be based on information about the username or the service they’re logging into.
+
+**GECOS**
+
+John’s implementation of word mangling also features compatibility with the GECOS field of the UNIX operating system, as well as other UNIX-like operating systems such as Linux. GECOS stands for General Electric Comprehensive Operating System. In the last task, we looked at the entries for both `/etc/shadow` and `/etc/passwd`. Looking closely, you will notice that the fields are separated by a colon `:`. The fifth field in the user account record is the GECOS field. It stores general information about the user, such as the user’s full name, office number, and telephone number, among other things. John can take information stored in those records, such as full name and home directory name, to add to the wordlist it generates when cracking `/etc/shadow` hashes with single crack mode.
+
+**Using Single Crack Mode**
+
+To use single crack mode, we use roughly the same syntax that we’ve used so far; for example, if we wanted to crack the password of the user named “Mike”, using the single mode, we’d use:
+
+`john --single --format=[format] [path to file]`
+
+- `--single`: This flag lets John know you want to use the single hash-cracking mode
+  
+- `--format=[format]`: As always, it is vital to identify the proper format.
+
+**Example Usage:**
+
+`john --single --format=raw-sha256 hashes.txt`
+
+**A Note on File Formats in Single Crack Mode:**
+
+If you’re cracking hashes in single crack mode, you need to change the file format that you’re feeding John for it to understand what data to create a wordlist from. You do this by prepending the hash with the username that the hash belongs to, so according to the above example, we would change the file `hashes.txt`
+
+From `1efee03cdcb96d90ad48ccc7b8666033`
+
+To `mike:1efee03cdcb96d90ad48ccc7b8666033`
+
+**Practical**
+
+Now that you’re familiar with the Syntax for John’s single crack mode, access the hash and crack it, assuming that the user it belongs to is called “Joker”. The file is located in `~/John-the-Ripper-The-Basics/Task07/`.
+
+**Answer the questions below**
+
+1. _What is Joker’s password?_
+
+Answer: `Jok3r`
+
+**_Explanation:_**
+
+First we find the hash format 
+
+<img width="918" height="988" alt="image" src="https://github.com/user-attachments/assets/98d1d394-a1b5-4c4b-a15c-c025cebb8b1d" />
+
+we see the username is `joker` from the question
+
+and now we create a file called `text.txt` and add the username:hash 
+
+<img width="891" height="173" alt="image" src="https://github.com/user-attachments/assets/1596f287-296e-48e4-9d2f-6bdf36bba020" />
+
+Now we use the following command to crack the file text.txt
+
+`john --single --format=raw-md5 text.txt`
+
+<img width="881" height="430" alt="image" src="https://github.com/user-attachments/assets/b69c06ab-06b9-4677-bb10-d7ed6173e8dc" />
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 8: Custom Rules**
+
+**What are Custom Rules?**
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+**Module 9: Cracking Password Protected Zip Files**
+
+Yes! You read that right. We can use John to crack the password on password-protected Zip files. Again, we’ll use a separate part of the John suite of tools to convert the Zip file into a format that John will understand, but we’ll use the syntax you’re already familiar with for all intents and purposes.
+
+**Zip2John**
+
+Similarly to the `unshadow` tool we used previously, we will use the `zip2john` tool to convert the Zip file into a hash format that John can understand and hopefully crack. The primary usage is like this:
+
+`zip2john [options] [zip file] > [output file]`
+
+- `[options]`: Allows you to pass specific checksum options to zip2john; this shouldn’t often be necessary
+
+- `[zip file]`: The path to the Zip file you wish to get the hash of
+
+- `>`: This redirects the output from this command to another file
+
+- `[output file]`: This is the file that will store the output
+
+**Example Usage**
+
+`zip2john zipfile.zip > zip_hash.txt`
+
+**Cracking**
+
+We’re then able to take the file we output from zip2john in our example use case, zip_hash.txt, and, as we did with unshadow, feed it directly into John as we have made the input specifically for it.
+
+`john --wordlist=/usr/share/wordlists/rockyou.txt zip_hash.txt`
+
+**Practical**
+
+Now, have a go at cracking a “secure” Zip file! The file is located in `~/John-the-Ripper-The-Basics/Task09/`.
+
+**Answer the questions below**
+
+1. _What is the password for the secure.zip file?_
+
+Answer: `pass123`
+
+**_Explanation:_**
+
+We first we use the following command to extract the password for the zip folder
+
+`zip2john secure.zip > zip_hash.txt`
+
+<img width="908" height="174" alt="image" src="https://github.com/user-attachments/assets/06e71096-f0b5-4349-9328-706fd538ea1d" />
+
+and now we use normal john on `zip_hash.txt` to crack the hash for the zip file
+
+`john --wordlist=/usr/share/wordlists/rockyou.txt zip_hash.txt`
+
+<img width="914" height="369" alt="image" src="https://github.com/user-attachments/assets/7fb7ca0b-b758-45c2-bbbd-031659c08277" />
+
+2. _What is the contents of the flag inside the zip file?_
+
+Answer: `THM{w3ll_d0n3_h4sh_r0y4l}`
+
+**_Explanation:_**
+
+We will unzip the `secure.zip` folder and now we are a password and we enter the password and a new folder called `zippy` gets created
+
+`unzip secure.zip`
+
+<img width="915" height="170" alt="image" src="https://github.com/user-attachments/assets/17bed543-3c60-4b23-8a1d-26b6f06e091c" />
+
+Now we go to this `zippy` folder and find the flag
+
+<img width="915" height="249" alt="image" src="https://github.com/user-attachments/assets/8acd32fa-bc48-47df-a75a-ffde4887b429" />
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
