@@ -528,6 +528,112 @@ Now we use the following command to crack the file text.txt
 
 **What are Custom Rules?**
 
+As we explored what John can do in Single Crack Mode, you may have some ideas about some good mangling patterns or what patterns your passwords often use that could be replicated with a particular mangling pattern. The good news is that you can define your rules, which John will use to create passwords dynamically. The ability to define such rules is beneficial when you know more information about the password structure of whatever your target is.
+
+**Common Custom Rules**
+
+Many organisations will require a certain level of password complexity to try and combat dictionary attacks. In other words, when creating a new account or changing your password, if you attempt a password like `polopassword`, it will most likely not work. The reason would be the enforced password complexity. As a result, you may receive a prompt telling you that passwords have to contain at least one character from each of the following:
+
+- Lowercase letter
+
+- Uppercase letter
+
+- Number
+
+- Symbol
+
+Password complexity is good! However, we can exploit the fact that most users will be predictable in the location of these symbols. For the above criteria, many users will use something like the following:
+
+`Polopassword1!`
+
+Consider the password with a capital letter first and a number followed by a symbol at the end. This familiar pattern of the password, appended and prepended by modifiers (such as capital letters or symbols), is a memorable pattern that people use and reuse when creating passwords. This pattern can let us exploit password complexity predictability.
+
+Now, this does meet the password complexity requirements; however, as attackers, we can exploit the fact that we know the likely position of these added elements to create dynamic passwords from our wordlists.
+
+**How to create Custom Rules**
+
+Custom rules are defined in the `john.conf` file. This file can be found in `/opt/john/john.conf` on the TryHackMe Attackbox. It is usually located in `/etc/john/john.conf` if you have installed John using a package manager or built from source with `make`.
+
+Let’s go over the syntax of these custom rules, using the example above as our target pattern. Note that you can define a massive level of granular control in these rules. I suggest looking at the wiki [here](https://www.openwall.com/john/doc/RULES.shtml) to get a full view of the modifiers you can use and more examples of rule implementation.
+
+The first line:
+
+`[List.Rules:THMRules]` is used to define the name of your rule; this is what you will use to call your custom rule a John argument.
+
+We then use a regex style pattern match to define where the word will be modified; again, we will only cover the primary and most common modifiers here:
+
+
+- `Az`: Takes the word and appends it with the characters you define
+
+- `A0`: Takes the word and prepends it with the characters you define
+
+- `c`: Capitalises the character positionally
+
+These can be used in combination to define where and what in the word you want to modify.
+
+Lastly, we must define what characters should be appended, prepended or otherwise included. We do this by adding character sets in square brackets [ ] where they should be used. These follow the modifier patterns inside double quotes " ". Here are some common examples:
+
+
+- `[0-9]`: Will include numbers 0-9
+
+- `[0]`: Will include only the number 0
+
+- `[A-z]`: Will include both upper and lowercase
+
+- `[A-Z]`: Will include only uppercase letters
+
+- `[a-z]`: Will include only lowercase letters
+
+Please note that:
+
+
+- `[a]`: Will include only a
+
+- `[!£$%@]`: Will include the symbols `!`, `£`, `$`, `%`, and `@`
+
+Putting this all together, to generate a wordlist from the rules that would match the example password Polopassword1! (assuming the word polopassword was in our wordlist), we would create a rule entry that looks like this:
+
+`[List.Rules:PoloPassword]`
+
+`cAz"[0-9] [!£$%@]"`
+
+Utilises the following:
+
+- `c`: Capitalises the first letter
+
+- `Az`: Appends to the end of the word
+
+- `[0-9]`: A number in the range 0-9
+
+- `[!£$%@]`: The password is followed by one of these symbols
+
+**Using Custom Rules**
+
+We could then call this custom rule a John argument using the  `--rule=PoloPassword flag`
+
+As a full command: `john --wordlist=[path to wordlist] --rule=PoloPassword [path to file]`
+
+As a note, I find it helpful to talk out the patterns if you’re writing a rule; as shown above, the same applies to writing RegEx patterns.
+
+Jumbo John already has an extensive list of custom rules containing modifiers for use in almost all cases. If you get stuck, try looking at those rules [around line 678] if your syntax isn’t working correctly.
+
+Now, it’s time for you to have a go!
+
+**Answer the questions below**
+
+1. _What do custom rules allow us to exploit?_
+
+Answer: `Password complexity predictability`
+
+2. _What rule would we use to add all capital letters to the end of the word?_
+
+Answer: `Az"[A-Z]"`
+
+3. _What flag would we use to call a custom rule called THMRules?_
+
+Answer: `--rule=THMRules`
+
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -600,3 +706,141 @@ Now we go to this `zippy` folder and find the flag
 <img width="915" height="249" alt="image" src="https://github.com/user-attachments/assets/8acd32fa-bc48-47df-a75a-ffde4887b429" />
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 10: Cracking Password-Protected RAR Archives**
+
+**Cracking Password-Protected RAR Archives**
+
+We can use a similar process to the one we used in the last task to obtain the password for RAR archives. If you aren’t familiar, RAR archives are compressed files created by the WinRAR archive manager. Like Zip files, they compress folders and files.
+
+**Rar2John**
+
+Almost identical to the `zip2john` tool, we will use the `rar2john` tool to convert the RAR file into a hash format that John can understand. The basic syntax is as follows:
+
+`rar2john [rar file] > [output file]`
+
+- `rar2john`: Invokes the rar2john tool
+
+- `[rar file]`: The path to the RAR file you wish to get the hash of
+
+- `>`: This redirects the output of this command to another file
+
+- `[output file]`: This is the file that will store the output from the command
+
+**Example Usage**
+
+`/opt/john/rar2john rarfile.rar > rar_hash.txt`
+
+**Cracking**
+
+Once again, we can take the file we output from `rar2john` in our example use case, `rar_hash.txt`, and feed it directly into John as we did with `zip2john`.
+
+`john --wordlist=/usr/share/wordlists/rockyou.txt rar_hash.txt`
+
+**Practical**
+
+Now, have a go at cracking a “secure” RAR file! The file is located in `~/John-the-Ripper-The-Basics/Task10/`.
+
+**Answer the questions below**
+
+1. _What is the password for the secure.rar file?_
+
+Answer: `password`
+
+**_Explanation:_**
+
+We use the following command to get the password of the rarfile and store it in a o/p file 
+
+`rar2john secure.rar > text.txt`
+
+now we crack the password for the rar file using the following command
+
+`john --wordlist=/usr/share/wordlists/rockyou.txt text.txt`
+
+<img width="920" height="510" alt="image" src="https://github.com/user-attachments/assets/b8ab6022-9350-4156-8dcf-71b06c196ae1" />
+
+2. _What are the contents of the flag inside the zip file?_
+
+Answer: `THM{r4r_4rch1ve5_th15_t1m3}`
+
+**_Explanation:_**
+
+Now we use the following command to unrar the rar file
+
+`unrar x secure.rar`
+
+and now we give the password which we got from the previous question and get the flag
+
+<img width="915" height="369" alt="image" src="https://github.com/user-attachments/assets/8a2aad2d-98b9-4d5e-b04b-febc19f9a462" />
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 11: Cracking SSH Keys with John**
+
+**Cracking SSH Key Passwords**
+
+Okay, okay, I hear you. There are no more file archives! Fine! Let’s explore one more use of John that comes up semi-frequently in CTF challenges—using John to crack the SSH private key password of `id_rsa` files. Unless configured otherwise, you authenticate your SSH login using a password. However, you can configure key-based authentication, which lets you use your private key, `id_rsa`, as an authentication key to log in to a remote machine over SSH. However, doing so will often require a password to access the private key; here, we will be using John to crack this password to allow authentication over SSH using the key.
+
+**SSH2John**
+
+Who could have guessed it, another conversion tool? Well, that’s what working with John is all about. As the name suggests, `ssh2john` converts the `id_rsa` private key, which is used to log in to the SSH session, into a hash format that John can work with. Jokes aside, it’s another beautiful example of John’s versatility. The syntax is about what you’d expect. Note that if you don’t have `ssh2john` installed, you can use ssh2john.py, located in the `/opt/john/ssh2john.py`. If you’re doing this on the AttackBox, replace the `ssh2john` command with `python3 /opt/john/ssh2john.py` or on Kali, `python /usr/share/john/ssh2john.py`.
+
+
+`ssh2john [id_rsa private key file] > [output file]`
+
+
+- `ssh2john`: Invokes the ssh2john tool
+
+- `[id_rsa private key file]`: The path to the id_rsa file you wish to get the hash of
+
+- `>`: This is the output director. We’re using it to redirect the output from this command to another file.
+
+- `[output file]`: This is the file that will store the output from
+
+**Example Usage**
+
+`/opt/john/ssh2john.py id_rsa > id_rsa_hash.txt`
+
+**Cracking**
+
+For the final time, we’re feeding the file we output from ssh2john, which in our example use case is called `id_rsa_hash.txt` and, as we did with `rar2john`, we can use this seamlessly with John:
+
+`john --wordlist=/usr/share/wordlists/rockyou.txt id_rsa_hash.txt`
+
+**Practical**
+
+Now, I’d like you to crack the hash of the `id_rsa` file relevant to this task! The file is located in `~/John-the-Ripper-The-Basics/Task11/`.
+
+**Answer the questions below**
+
+1. _What is the SSH private key password?_
+
+Answer: `mango`
+
+**_Explanation:_**
+
+We use the following command to get the hash of the id_rsa file and save it in a file called `id_rsa_hash.txt`
+
+`opt/john/ssh2john.py id_rsa > id_rsa_hash.txt`
+
+<img width="921" height="121" alt="image" src="https://github.com/user-attachments/assets/28b5c447-8f3e-4f41-bb60-f0b104c007ad" />
+
+Now we use john to crack the hash for the private key using the following command
+
+`john --wordlist=/usr/share/wordlists/rockyou.txt id_rsa_hash.txt`
+
+<img width="918" height="429" alt="image" src="https://github.com/user-attachments/assets/4f77c94d-9a17-4594-a028-aeb69976cbf6" />
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 12: Further Reading**
+
+Thank you for completing this room on John the Ripper! I hope you’ve learnt a lot along the way. I’m sure you understand the basic principles and pattern of using John with even the most obscure supported hashes by now. I’d recommend checking out the Openwall Wiki [here](https://www.openwall.com/john/) for more information about using John and advice, updates, or news about the tool.
+
+**Answer the questions below**
+
+1. _Time for a new challenge!_
+
+Answer: No answer needed
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
