@@ -54,6 +54,19 @@ nameserver MACHINE_IP
 nameserver 169.254.169.253
 ```
 
+**_Extra Info_**
+
+
+If resolv-dnsmasq shows failed the use 
+
+`sudo systemctl disable systemd-resolved`
+
+`"sudo systemctl stop systemd-resolved`
+
+and then 
+
+`/etc/init.d/dnsmasq restart`
+
 **Answer the questions below**
 
 1. _I assigned the MACHINE_IP as the first nameserver in the /etc/resolv-dnsmasq file and restarted the Dnsmasq service._
@@ -341,7 +354,14 @@ Answer: `-d`
 
 2. _Use the commands learned in this task, how many subdomains are configured for the offensivetools.thm domain?_
 
-Answer: ``
+Answer: `4`
+
+**_Explanation:_**
+
+We use the following command `gobuster dns -d offensivetools.thm -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt` and we can see 4 subdomains 
+
+<img width="1016" height="711" alt="image" src="https://github.com/user-attachments/assets/4979d1de-ae2e-4e55-8ee2-6f9978fbefcb" />
+
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -353,7 +373,16 @@ The last and final mode we’ll focus on is the vhost mode. This mode allows Gob
 
 - dns mode will do a DNS lookup to the FQDN created by combining the configured domain name (-d flag) with an entry of a wordlist.
 
-Help
+**_Extra Info_**
+
+```
+DNS answers: “What IP belongs to this domain?”
+
+VHost answers: “What website do I show for this domain on this IP?”
+
+```
+
+**Help**
 
 If you want a complete overview of what the Gobuster vhost command can offer, you can have a look at the help page. Seeing the extensive help page for the vhost command can be intimidating. So, we will focus on the most important flags in this room. Type the  following command to display the help: gobuster vhost --help
 
@@ -445,4 +474,42 @@ Gobuster will report them to you in the terminal.
 
 1. _Use the commands learned in this task to answer the following question: How many vhosts on the offensivetools.thm domain reply with a status code 200?_
 
-Answer: ``
+Answer: `4`
+
+**_Explanation:_**
+
+We use the following command `gobuster vhost -u "http://10.201.110.198" --domain offensivetools.thm -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt --append-domain --exclude-length 250-350`
+
+<img width="999" height="777" alt="image" src="https://github.com/user-attachments/assets/5115f28f-a85b-41fa-af94-220ec105bf3e" />
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 7: Conclusion**
+
+This room taught us about the offensive tool Gobuster. This tool enumerates directories, files, DNS subdomains, and virtual hosts.
+
+We have covered three different modes of the Gobuster tool:
+
+- **_dns mode_**: enumerates dns subdomains.
+
+- **_dir mode_**: enumerates directories.
+
+- **_vhost mode_**: enumerates virtual hosts.
+
+For each mode, we covered the required flags to configure and additional optional flags that fine-tune the desired results.
+
+We have highlighted the difference between virtual hosts and subdomains and the way Gobuster scans for these:
+
+- **_dns_** mode uses the DNS services to scan for subdomains using the configured domain and wordlist.
+
+- **_vhost_** mode sends web requests using the configured URL and wordlist.
+
+At the end of each task, we directly applied the skills we had learned through hands-on exercises.
+
+**Answer the questions below**
+
+1. _On to the next challenge._
+
+Answer: No answer needed
+
+------------------------------------------------------------------------------------------------------------------------------------------------
