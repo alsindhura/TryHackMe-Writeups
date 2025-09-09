@@ -322,3 +322,657 @@ Answer: `Downloader`
 
 **Module 4: Dissecting CAPA Results Part 2: Malware Behavior Catalogue**
 
+In this task, we will cover the following topics:
+
+- MBC
+
+- Objective
+
+- Micro-Objective
+
+- MBC Behaviors
+
+- Micro-Behavior
+
+- Methods
+
+Let's move on to the next block. This terminal can also be seen from Task 2, where we ran the CAPA tool. Click on the view terminal below.
+
+```
+    ┍━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┑
+	│ MBC Objective               │ MBC Behavior                                                                  │
+	┝━━━━━━━━━━━━━━━┿━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┥
+	│ ANTI-BEHAVIORAL ANALYSIS    │ Virtual Machine Detection [B0009]
+    ├─────────────────────────────┼───────────────────────────────━──────────────────────────────────────────────┤
+	│ ANTI-STATIC ANALYSIS        │ Executable Code Obfuscation::Argument Obfuscation [B0032.020]                 │
+	│                             │ Executable Code Obfuscation::Stack Strings [B0032.017]                        │
+	├─────────────────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+	│ COMMUNICATION               │ HTTP Communication [C0002]                                                    │
+	│                             │ HTTP Communication::Read Header [C0002.014]                                   │
+	├─────────────────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+	│ DATA                        │ Check String [C0019]                                                          │
+	│                             │ Encode Data::Base64 [C0026.001]                                               │
+	│                             │ Encode Data::XOR [C0026.002]                                                  │
+	├─────────────────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+	│ DEFENSE EVASION             │ Obfuscated Files or Information::Encoding-Standard Algorithm [E1027.m02]      │
+	├─────────────────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+	│ DISCOVERY                   │ File and Directory Discovery [E1083]                                          │
+	├─────────────────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+	│ EXECUTION                   │ Command and Scripting Interpreter [E1059]                                     │
+	├─────────────────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+	│ FILE SYSTEM                 │ Create Directory [C0046]                                                      │
+	│                             │ Delete File [C0047]                                                           │
+	│                             │ Read File [C0051]                                                             │
+	│                             │ Writes File [C0052]                                                           │
+	├─────────────────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+	│ MEMORY                      │ Allocate Memory [C0007]                                                       │
+	├─────────────────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+	│ PROCESS                     │ Create Process [C0017]                                                        │
+	┕━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┙
+```
+
+We'll tackle the Malware Behavior Catalogue to better understand the block above.
+
+**Malware Behavior Catalogue (MBC)**
+
+MBC is designed to support various aspects of malware analysis, such as labelling, similarity analysis, and standardized reporting. Essentially, it serves as a catalogue of malware objectives and behaviours. MBC can also link to ATT&CK methods and log all behaviours and code features discovered during malware analysis. It's important to note that the names of MBC behaviours may or may not match the corresponding ATT&CK techniques. The information on behaviour pages complements the content on ATT&CK pages. In other words, when recording malware behaviours, MBC users will reference ATT&CK, but MBC does not duplicate ATT&CK information.
+
+The content of MBC below can be represented in two formats.
+
+| Format                            | Sample                                                        | Explanation                                                                                   |
+|-----------------------------------|----------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| OBJECTIVE::Behavior::Method[Identifier] | ANTI-STATIC ANALYSIS::Executable Code Obfuscation::Argument Obfuscation [B0032.020] | - OBJECTIVE = ANTI-STATIC ANALYSIS  <br> - BEHAVIOR = Executable Code Obfuscation <br> - METHOD = Argument Obfuscation <br> - IDENTIFIER = B0032.020 |
+| OBJECTIVE::Behavior::[Identifier] | COMMUNICATION::HTTP Communication:: [C0002]                   | - OBJECTIVE = COMMUNICATION <br> - BEHAVIOR = HTTP Communication <br> - IDENTIFIER = C0002                        |
+
+The difference between the two formats is that the first format contains additional details called METHOD, which can also be coined as a sub-technique.
+
+
+We must also discuss the Objective, Behavior, and Methods to better understand this part.
+
+**Objective**
+
+The Objective are based on ATT&CK tactics in the context of malware behaviour, though not all are included. Furthermore, MBC has Anti-Behavioral and Anti-Static Analysis. These objectives are tailored for malware analysis with the use case of characterizing malware. See the table below for an explanation of each.
+
+| Objective              | Explanation                                                                                                                                                                                                                                                                               |
+|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Anti-Behavioral Analysis | Malware attempts to avoid detection by hindering behavioural analysis using tools like sandboxes or debuggers.                                                                                                                                                                           |
+| Anti-Static Analysis     | Malware attempts to obstruct or add complexity to static analysis, making it more challenging for security professionals to identify and understand its malicious behaviours and intentions.                                                                                              |
+| Collection               | Malware focuses on identifying and gathering information from the targeted machine or network.                                                                                                                                                                                           |
+| Command and Control      | Malware typically establishes communication with compromised systems through various methods such as command and control servers, peer-to-peer networks, or other means. This communication allows the malware to control the compromised systems, enabling the attackers to execute commands, exfiltrate data, or carry out other malicious activities. |
+| Credential Access        | The primary aim of malware is to steal account credentials, such as usernames and passwords.                                                                                                                                                                                              |
+| Defense Evasion          | The malware aims to bypass and circumvent the various detection and security mechanisms present within the system to avoid being detected or mitigated.                                                                                                                                  |
+
+| Objective            | Explanation                                                                                                                                                                                                                                 |
+|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Discovery            | Malware seeks to collect detailed information about the configuration and setup of the system or network environment, including hardware, software, and network infrastructure.                                                             |
+| Execution            | Malware is designed to execute unauthorized commands or code on a targeted computer system without the user’s consent. This can include a wide range of harmful activities, such as stealing personal information or damaging files.         |
+| Exfiltration         | Malware is designed to infiltrate computer systems or networks to steal and extract sensitive data. This can include personal information, financial details, and any other valuable data stored on the targeted system or network.          |
+| Impact               | Malware aims to manipulate, disrupt, or damage computer systems and data. It can enter computers through infected emails, compromised websites, and other deceptive means, leading to financial loss, privacy breaches, and system instability. |
+| Lateral Movement     | Malware seeks to spread through the network, either actively through machine access or passively, such as via malicious emails.                                                                                                               |
+| Persistence          | Malware is intentionally developed with the capability to remain undetected and operational on a computer system for an extended period.                                                                                                      |
+| Privilege Escalation | Malware seeks to infiltrate a computer system or network to gain elevated permissions or control. Once inside, it can escalate privileges, access sensitive information, or control system resources for malicious purposes.                  |
+
+**Micro-Objective**
+
+ Micro-objectives are associated with micro-behaviors, which refer to an action or actions exhibited by potentially malicious software that isn't necessarily malicious and may serve various objectives. Example binaries are such as those in messaging apps. However, it's important to note that these behaviours are typically abused. That's why CAPA might have flagged this behaviour.
+
+| Micro-Objective | Description                                                                                                                                                                      |
+|------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| PROCESS          | exhibiting behaviours related to processes such as but not limited to Creating Process, Setting Thread Context, Terminating Process, and Checking Mutex.                        |
+| MEMORY           | exhibiting behaviours such as, but not limited to, Allocating Memory, Changing Memory Protection, and Freeing Memory.                                                           |
+| COMMUNICATION    | exhibiting behaviours such as (not limited to) DNS, FTP, HTTP, ICMP, SMTP network traffic.                                                                                       |
+| DATA             | exhibiting behaviours such as but not limited to Checking strings, compressing, decoding and encoding data.                                                                     |
+
+The final output of CAPA, Objective, and Micro-Objective are shown only under the Objective column.
+
+**MBC Behaviors**
+
+The column MBC Behaviors contains behaviours and Micro-behaviors with or without its methods and identifiers. Please check the link [MBC Summary](https://github.com/MBCProject/mbc-markdown/blob/main/mbc_summary.md) for a listing of all MBC content.
+
+Below is a compiled version of Behaviors/Micro-behaviors and its Identifier.
+
+| Objective                             | Behavior                      | Identifier | Explanation                                                                                                                                                                                                                           |
+|---------------------------------------|-------------------------------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ANTI-BEHAVIORAL ANALYSIS              | Virtual Machine Detection     | B0009      | The malware checks to see if it is running in a virtual environment. During its system reconnaissance, the malware examines various user and system artifacts.                                                                       |
+| ANTI-STATIC ANALYSIS                  | Executable Code Obfuscation   | B0032      | Executable code has been intentionally obscured to prevent static code analysis. This is a specific behavior related to the executable code of a malware sample, including its data and text sections.                              |
+| EXECUTION                             | Command and Scripting Interpreter | E1059      | Malware can exploit command and script interpreters to run malicious commands, scripts, or binaries. It targets built-in interpreters like cmd.exe or PowerShell on Windows or Bash on Unix-like systems. Other scripting languages may also be used. |
+| DISCOVERY                             | File and Directory Discovery  | E1083      | Malware has the capability to search for specific files in particular locations by enumerating files and directories.                                                                                                                 |
+| ANTI-STATIC ANALYSIS, DEFENSE EVASION | Obfuscated Files or Information | E1027      | Malware can obfuscate files or information by encoding, encrypting, or otherwise making them hard to analyze. It can also encode or encrypt the malware sample itself.                                                               |
+
+**Micro-Behavior**
+
+The term "low-level behaviors" in malware analysis refers to actions exhibited by malware that aren't necessarily malicious and may serve various objectives. These behaviors are often documented as "micro-behaviors" in the Malware Behavior Characteristics (MBC) analysis. Examples of such low-level behaviors include the creation of TCP sockets and evaluating specific conditions within strings. It's important to note that just because a behavior is categorized as low-level does not mean it is harmless, as it may still be part of a larger malicious scheme.
+
+| Micro-Objective | Micro-Behavior       | Identifier | Explanation                                                                                                                                                                        |
+|------------------|----------------------|------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| MEMORY           | Allocate Memory      | C0007      | Malware frequently utilizes memory allocation as part of its strategy to unpack itself and execute its malicious activities.                                                      |
+| PROCESS          | Create Process       | C0017      | Malware creates a process via WMI or shellcode. It can also create a suspended process.                                                                                            |
+| COMMUNICATION    | HTTP Communication   | C0002      | Malware is capable of initiating HTTP communications.                                                                                                                              |
+| DATA             | Check String         | C0019      | Malware can inspect a string to identify specific characteristics, such as ASCII content, credit card numbers, and string length.                                                  |
+
+| Micro-Objective | Micro-Behavior     | Identifier | Explanation                                                               |
+|------------------|--------------------|------------|---------------------------------------------------------------------------|
+| DATA             | Encode Data        | C0026      | Malware has the capability to encode data using base64 and XOR.           |
+| FILE SYSTEM      | Create Directory   | C0046      | Malware can create a directory.                                           |
+| FILE SYSTEM      | Delete File        | C0047      | Malware has the capability to delete a file.                              |
+| FILE SYSTEM      | Read File          | C0051      | Malware can read a file.                                                  |
+| FILE SYSTEM      | Write File         | C0052      | Malware has the capability to write to a file.                            |
+
+Note that in the final output of CAPA, Behavior and Micro-Behavior are shown only under the Behavior column.
+
+**Methods**
+
+Lastly, let’s check the METHODS. Below are some methods included in the results from the previous sample. Methods are tied to behaviors; therefore, to fully see all methods, please refer to each specific behavior/micro behavior of interest.
+
+| Behavior                   | Methods or Sub-technique       | Identifier   | Explanation                                                                                         |
+|----------------------------|-------------------------------|--------------|---------------------------------------------------------------------------------------------------|
+| Executable Code Obfuscation | Argument Obfuscation           | B0032.020    | Simple number or string arguments to API calls are calculated at runtime, making analysis more difficult. |
+| Executable Code Obfuscation | Stack Strings                 | B0032.017    | Build and decrypt strings on the stack at each use, then discard to avoid obvious references.      |
+| HTTP Communication          | Read Header                  | C0002.014    | HTTP read header.                                                                                   |
+| Encode Data                | Base64                      | C0026.001    | Malware may encode data using Base64.                                                             |
+| Encode Data                | XOR                         | C0026.002    | Malware may use XOR to encode data.                                                               |
+| Obfuscated Files or Information | Encoding-Standard Algorithm | E1027.m02    | Encoding malware samples, files, or other information uses a standard algorithm (e.g., base64).    |
+
+Now that we have a good overview and understanding of the MBC's contents, we should be able to explain the result of the previous sample. Therefore, let's do a quick recap using one of the results. Shall we?
+
+```
+┌─────────────────────────────┬──────────────────────────────────┐
+│ MBC Objective               │ MBC Behavior                     │
+├─────────────────────────────┼──────────────────────────────────┤
+| DATA                        │ Encode Data::Base64 [C0026.001]  │
+└─────────────────────────────┴──────────────────────────────────┘
+```
+
+Here's the explanation for the above result. See the table below.
+
+| Label         | Value       | Explanation                                                                                         |
+|---------------|-------------|---------------------------------------------------------------------------------------------------|
+| MBC Objective | DATA        | exhibiting behaviors such as, but not limited to, checking strings, compressing, decoding, and encoding data. |
+| MBC Behavior  | Encode Data | Malware has the capability to encode data using base64 and XOR.                                   |
+| Method        | Base64      | Malware may encode data using Base64.                                                             |
+| Identifier    | C0026.001   | Identifier relays information about a behavior. This also serves as a tag.                        |
+
+Knowing this information, you may simply say this file can use the base64 encoding scheme!
+
+**Answer the questions below**
+
+1. _What serves as a catalogue of malware objectives and behaviours?_
+
+Answer: `Malware Behavior Catalogue`
+
+2. _Which field is based on ATT&CK tactics in the context of malware behaviour?_
+
+Answer: `Objective`
+
+3. _What is the Identifier of "Create Process" micro-behavior?_
+
+Answer: `C0017`
+
+4. _What is the behaviour with an Identifier of B0009?_
+
+Answer: `Virtual Machine Detection`
+
+5. _Malware can be used to obfuscate data using base64 and XOR. What is the related micro-behavior for this?_
+
+Answer: `Encode Data`
+
+6. _Which micro-behavior refers to "Malware is capable of initiating HTTP communications"?_
+
+Answer: `HTTP Communication`
+
+---
+
+**Module 5: Dissecting CAPA Results Part 3: Namespaces**
+
+We will divide the discussion into two main topics: Capability and Namespace. In this task, we will focus on the discussion of Namespace.
+
+Below, you will find the capa.exe output. Note that this can also be viewed in Task 2. Click on the View Terminal below.
+
+```
+┌──────────────────────────────────────────────────────┬──────────────────────────────────────────────────────┐
+│ Capability                                           │ Namespace                                            │
+├──────────────────────────────────────────────────────┼──────────────────────────────────────────────────────┤
+│ reference anti-VM strings                            │ anti-analysis/anti-vm/vm-detection                   │
+│ reference anti-VM strings targeting VMWare           │ anti-analysis/anti-vm/vm-detection                   │
+│ reference anti-VM strings targeting VirtualBox       │ anti-analysis/anti-vm/vm-detection                   │
+│ contain obfuscated stackstrings (2 matches)          │ anti-analysis/obfuscation/string/stackstring         │
+│ reference HTTP User-Agent string                     │ communication/http                                   │
+│ check HTTP status code                               │ communication/http/client                            │
+│ reference Base64 string                              │ data-manipulation/encoding/base64                    │
+│ encode data using XOR                                │ data-manipulation/encoding/xor                       │
+│ contain a thread local storage (.tls) section        │ executable/pe/section/tls                            │
+│ get common file path                                 │ host-interaction/file-system                         │
+│ create directory                                     │ host-interaction/file-system/create                  │
+│ delete file                                          │ host-interaction/file-system/delete                  │
+│ read file on Windows (4 matches)                     │ host-interaction/file-system/read                    │
+│ write file on Windows (5 matches)                    │ host-interaction/file-system/write                   │
+│ get thread local storage value                       │ host-interaction/process                             │
+│ create process on Windows                            │ host-interaction/process/create                      │
+│ allocate or change RWX memory                        │ host-interaction/process/inject                      │
+│ reference cryptocurrency strings                     │ impact/cryptocurrency                                │
+│ link function at runtime on Windows (5 matches)      │ linking/runtime-linking                              │
+│ parse PE header (4 matches)                          │ load-code/pe                                         │
+│ resolve function by parsing PE exports (186 matches) │ load-code/pe                                         │
+│ run PowerShell expression                            │ load-code/powershell/                                │
+│ schedule task via at                                 │ persistence/scheduled-tasks                          │
+│ schedule task via schtasks                           │ persistence/scheduled-tasks                          │
+└──────────────────────────────────────────────────────┴──────────────────────────────────────────────────────┘
+```
+
+The content of this block is represented in the below format.
+
+| Format                                | Sample                                     | Explanation                                      |
+|-------------------------------------|-------------------------------------------|--------------------------------------------------|
+| Capability(Rule Name)::TLN/Namespace | reference anti-VM strings::Anti-Analysis/anti-vm/vm-detection | - Reference anti-VM strings = Capability(Rule Name) <br> - Anti-Analysis = TLN or Top-Level Namespace <br> - anti-vm/vm-detection = Namespace |
+
+**Namespaces**
+
+ CAPA uses namespaces to group items with the same purpose.  
+
+ | Top-Level Namespace (TLN) | Explanation                                                                                                                                                                              |
+|---------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| anti-analysis             | Contains a set of rules specifically designed to detect behaviours exhibited by malware to evade analysis. These behaviours include obfuscation, packing, and anti-debugging techniques.     |
+| collection               | Contains a set of data-related rules that malware may enumerate and collect for exfiltration or other purposes. Think of it as the “data-gathering” aspect of malware behaviour.            |
+| communication            | Contains a set of rules that pertain to different communication behaviours demonstrated by malware. This includes data transmission, command and control communications, and other network activities. |
+| compiler                 | Contains rules and configurations for recognizing specific build environments or compilers used to generate executables. These serve as unique “signatures” identifying the compilation process. |
+| data-manipulation        | Contains rules governing behaviours involved in altering data within executable files, such as String Encryption and Data Encoding — essentially the “data transformation” component.       |
+
+| Top-Level Namespace (TLN) | Explanation                                                                                                                                                                                                                                                                |
+|---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| executable                | Contains a set of rules pertaining to the attributes in executable files. These attributes include PE sections or debug info associated with the executable.                                                                                                                |
+| host-interaction          | Contains a set of rules related to behaviors involving interactions with the host system. This encompasses how malware interacts with its environment, including reading, writing, or modifying files on disk, such as creating, deleting, or modifying files and directories. |
+| impact                   | Contains a set of rules related to the potential consequences or effects of a program’s behavior. It focuses on possible harm caused by malware, including remote access, data exfiltration, destruction, or modification.                                                    |
+| internal                 | Rules contained within the system are not intended for direct use by analysts or reporting but are meant for internal purposes within the CAPA tool.                                                                                                                       |
+| lib                      | Building blocks to create other rules.                                                                                                                                                                                                                                     |
+| linking                  | Contains rules to identify behaviors involving linking or dynamically loading external code or libraries during execution. This helps understand malware’s capabilities and potential attack surfaces due to external dependencies.                                          |
+| load-code                | Contains rules related to behaviors involving dynamically loading or executing code during runtime. This is akin to “runtime code injection” where unauthorized code is introduced during execution.                                                                      |
+| malware-family           | Contains rules related to behaviors linked to particular malware families or groups, helping identify distinct “signatures” for detection and classification.                                                                                                            |
+| nursery                  | A staging ground containing rules that are not quite polished yet.                                                                                                                                                                                                        |
+| persistence              | Contains rules related to maintaining access or persistence within a compromised system, allowing malware to remain present and active over extended periods.                                                                                                           |
+| runtime                  | Contains rules to identify the language or platform on which the program runs.                                                                                                                                                                                            |
+| targeting                | Contains rules related to behaviors exhibited by programs interacting with ATMs.                                                                                                                                                                                         |
+
+
+Let’s see how this works by checking the table below.
+
+| Top-Level Namespace (TLN) | Namespaces             | Rule YAML File(s)                                                     | Explanation                                                                                                                                                                                                                                                                                     |
+|---------------------------|------------------------|----------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Anti-Analysis             | anti-vm/vm-detection   | reference-anti-vm-strings-targeting-virtualbox.yml<br>reference-anti-vm-strings-targeting-virtualpc.yml | “anti-vm/vm-detection” namespace contains rules to detect virtual machine (VM) environments. These rules focus on identifying specific strings or patterns commonly used by malware to detect VMs while running. CAPA can identify if malware searches for VMware registry keys, tools, or other VM elements. |
+| Anti-Analysis             | obfuscation            | obfuscated-with-dotfuscator.yml<br>obfuscated-with-smartassembly.yml | Malware often uses obfuscation techniques to make analysis more difficult, including String Encryption, Code Obfuscation, Packing, and Anti-Debugging Tricks. The obfuscation namespace addresses these methods that conceal or obscure the true purpose of the code.                                                                     |
+
+For this, we only used Anti-Analysis as the TLN or Top-Level Namespace. Under this TLN, we have grouped namespaces, such as anti-vm/vm-detection and obfuscation. Each namespace has a collection of rules inside them that are also grouped together. For anti-vm/vm-detection, we have rules, and it's config file, such as:
+
+  - reference-anti-vm-strings-targeting-virtualbox.yml
+  - reference-anti-vm-strings-targeting-virtualpc.yml
+
+The same goes for the obfuscation namespace. We have rules that are grouped, such as:
+
+  - obfuscated-with-dotfuscator.yml
+  - obfuscated-with-smartassembly.yml
+
+Again, do note that this is still under TLN Anti-Analysis!
+
+Please also refer to the illustration below.
+
+<img width="900" height="800" alt="image" src="https://github.com/user-attachments/assets/d78cb344-9be8-4f66-992a-54dd8efc5a35" />
+
+In addition to what was mentioned in the above table, there are still a few more namespaces under Anti-Analysis with corresponding rules. If you want to dig deeper, please check this [link](https://github.com/MBCProject/capa-rules-1/tree/master/anti-analysis).
+
+Use this [link](https://github.com/MBCProject/capa-rules-1?tab=readme-ov-file#namespace-organization) if you are interested in the other TLN or Top-Level Namespaces, such as collection, compiler, persistence, linking, and impact.
+
+**Answer the questions below**
+
+1. _Which top-level Namespace contains a set of rules specifically designed to detect behaviours, including obfuscation, packing, and anti-debugging techniques exhibited by malware to evade analysis?_
+
+Answer:`anti-analysis`
+
+2. _Which namespace contains rules to detect virtual machine (VM) environments? Note that this is not the TLN or Top-Level Namespace._
+
+Answer:`anti-vm/vm-detection`
+
+3. _Which Top-Level Namespace contains rules related to behaviours associated with maintaining access or persistence within a compromised system? This namespace is focused on understanding how malware can establish and maintain a presence within a compromised environment, allowing it to persist and carry out malicious activities over an extended period._
+
+Answer:`persistence`
+
+4. _Which namespace addresses techniques such as String Encryption, Code Obfuscation, Packing, and Anti-Debugging Tricks, which conceal or obscure the true purpose of the code?_
+
+Answer:`obfuscation`
+
+5. _Which Top-Level Namespace Is a staging ground for rules that are not quite polished?_
+
+Answer:`nursery`
+
+6. _Proceed to the next task for the 2nd part of the discussion!_
+
+Answer: No answer needed
+
+---
+
+**Module 6: Dissecting CAPA Results Part 4: Capability**
+
+In this task, we will continue the discussion from the previous task.
+
+**Capability**
+
+Below is a table with the Capability and its related TLN, namespace, and the rules associated with the yaml file. Please have a good look.
+
+| Capability                              | Top-Level Namespace (TLN) | Namespaces              | Rule YAML File                                         | Notes                                                                                                          |
+|---------------------------------------|---------------------------|-------------------------|-------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| reference anti-VM strings              | [Anti-Analysis](https://github.com/MBCProject/capa-rules-1/tree/master/anti-analysis) | anti-vm/vm-detection    | reference-anti-vm-strings.yml                          | To check all rules under this namespace, click [here](https://github.com/MBCProject/capa-rules-1/tree/master/anti-analysis/anti-vm/vm-detection) |
+| reference anti-VM strings targeting VMWare | Anti-Analysis             | anti-vm/vm-detection    | reference-anti-vm-strings-targeting-vmware.yml        | To check all rules under this namespace, click [here](https://github.com/MBCProject/capa-rules-1/tree/master/anti-analysis/anti-forensic)           |
+| reference anti-VM strings targeting VirtualBox | Anti-Analysis             | anti-vm/vm-detection    | reference-anti-vm-strings-targeting-virtualbox.yml    | You may check the TLN (Top-Level Namespace).                                                                  |
+| reference HTTP User-Agent string       | [Communication](https://github.com/MBCProject/capa-rules-1/tree/master/communication) | http/client             | reference-http-user-agent-string.yml                   | To check all rules under this namespace, click [here](https://github.com/MBCProject/capa-rules-1/tree/master/communication/http/client)             |
+| check HTTP status code                 | Communication             | http                    | check-http-status-code.yml                             | To check all rules under this namespace, click [here](https://github.com/MBCProject/capa-rules-1/tree/master/communication/http)                     |
+
+| Capability                           | Top-Level Namespace (TLN)                                           | Namespaces                    | Rule YAML File                                  | Notes                                                                                         |
+|------------------------------------|--------------------------------------------------------------------|-------------------------------|------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| reference Base64 string             | [Data Manipulation](https://github.com/MBCProject/capa-rules-1/tree/master/data-manipulation) | encoding/base64               | reference-base64-string.yml                      | To check all rules under this namespace, click [here](https://github.com/MBCProject/capa-rules-1/tree/master/data-manipulation/encoding/base64) |
+| encode data using XOR               | Data Manipulation                                                  | encoding/xor                  | encode-data-using-xor.yml                        | To check all rules under this namespace, click [here](https://github.com/MBCProject/capa-rules-1/tree/master/data-manipulation/encoding/xor)    |
+| contain a thread local storage (.tls) section | [Executable](https://github.com/MBCProject/capa-rules-1/tree/master/executable)               | pe/section/tls                | contain-a-thread-local-storage-tls-section.yml | You may check the TLN(Top-Level Namespace) for more rules.                                   |
+| get common file path                | [Host-Interaction](https://github.com/MBCProject/capa-rules-1/tree/master/host-interaction)     | file-system                  | get-common-file-path.yml                         | You may check the TLN(Top-Level Namespace) for more rules.                                   |
+| create directory                   | Host-Interaction                                                  | file-system/create            | create-directory.yml                             | You may check the TLN(Top-Level Namespace) for more rules.                                   |
+| delete file                       | Host-Interaction                                                  | file-system/delete            | delete-file.yml                                 | To check all rules under this namespace, click [here](https://github.com/MBCProject/capa-rules-1/tree/master/host-interaction/file-system/delete) |
+| read file on Windows               | Host-Interaction                                                  | file-system/read              | read-file-on-windows.yml                         | To check all rules under this namespace, click [here](https://github.com/MBCProject/capa-rules-1/tree/master/host-interaction/file-system/read)   |
+| write file on Windows              | Host-Interaction                                                  | file-system/write             | write-file-on-windows.yml                        | To check all rules under this namespace, click [here](https://github.com/MBCProject/capa-rules-1/tree/master/host-interaction/file-system/write)  |
+| get thread local storage value     | Host-Interaction                                                  | process                      | get-thread-local-storage-value.yml               | This rule is found under **TLN [Nursery](https://github.com/mandiant/capa-rules/tree/master/nursery)**, a staging ground for unpolished rules.  |
+| allocate or change RWX memory      | Host-Interaction                                                  | process/inject               | allocate-or-change-rwx-memory.yml                | To check all rules under this namespace, click [here](https://github.com/MBCProject/capa-rules-1/tree/master/host-interaction/process/inject)     |
+| create process on Windows          | Host-Interaction                                                  | process/create               | create-process-on-windows.yml                     | To check all rules under this namespace, click [here](https://github.com/MBCProject/capa-rules-1/tree/master/host-interaction/process/create)      |
+| reference cryptocurrency strings   | [Impact](https://github.com/MBCProject/capa-rules-1/tree/master/impact)                         | impact/cryptocurrency        | reference-cryptocurrency-strings.yml             | This rule is found under **TLN [Nursery](https://github.com/mandiant/capa-rules/tree/master/nursery)**, a staging ground for unpolished rules.  |
+| link function at runtime on Windows | [Linking](https://github.com/MBCProject/capa-rules-1/tree/master/linking)                       | runtime-linking              | link-function-at-runtime-on-windows.yml          | To check all rules under this namespace, click [here](https://github.com/MBCProject/capa-rules-1/tree/master/linking/runtime-linking)              |
+| parse PE header                   | [load-code](https://github.com/MBCProject/capa-rules-1/tree/master/load-code)                   | load-code/pe                 | parse-pe-header.yml<br>resolve-function-by-parsing-pe-exports.yml | To check all rules under this namespace, click [here](https://github.com/MBCProject/capa-rules-1/tree/master/load-code/pe)                          |
+| resolve function by parsing PE exports | load-code                                                        | load-code/pe                 | resolve-function-by-parsing-pe-exports.yml       | To check all rules under this namespace, click [here](https://github.com/MBCProject/capa-rules-1/tree/master/load-code/pe)                          |
+| run PowerShell expression          | [load-code](https://github.com/MBCProject/capa-rules-1/tree/master/load-code/powershell)        | load-code/PowerShell         | run-powershell-expression.yml                     | To check all rules under this namespace, click [here](https://github.com/MBCProject/capa-rules-1/tree/master/linking/runtime-linking)               |
+| schedule task via at               | [persistence](https://github.com/MBCProject/capa-rules-1/tree/master/persistence)                | scheduled-tasks              | schedule-task-via-at.yml                          | You may check the TLN(Top-Level Namespace) for more rules.                                   |
+| schedule task via schtasks         | persistence                                                      | scheduled-tasks              | schedule-task-via-schtasks.yml                    | You may check the TLN(Top-Level Namespace) for more rules.                                   |
+
+To further explain this, let’s check the first capability on the table, “reference anti-VM strings”.
+
+    We note that the related rules in YML format are reference-anti-vm-strings.yml
+    This is under the namespace anti-vm/vm-detection
+    which is also under the Top-Level Namespace Anti-Analysis
+
+This tells us that CAPA was able to identify that the potentially malicious software searches for VMware-specific registry keys, the presence of VMware tools, or other VM-related elements by using the reference-anti-vm-strings.yml rule yaml file. Malware typically does this behaviour to avoid detection. That is why CAPA flagged this one.
+
+Let’s have another example. Let’s look at "schedule task via schtasks".
+
+- We note that the related rules in YML format is schedule-task-via-schtasks.yml*
+
+- This is under the namespace scheduled-tasks
+
+- which is also under the Top-Level Namespace persistence
+
+This tells us that CAPA could identify behaviours related to scheduled tasks within the Windows operating system. It might have recognized patterns indicating that the executable registers itself as a scheduled task to maintain persistence using the rule defined in schedule-task-via-schtasks.yml.
+
+Hold on! Have you noticed something?
+
+That’s right! The item under Capability has the same name as the YML files under the Rules, with the addition of a dash (-) character between spaces! Simple because Capability is the name of the rule.
+
+Now, we want to take note of some exceptions here. Where the Capability or rules are not located under its Namespace, let’s take the Capability reference cryptocurrency strings from the table above; this should be under the Impact Top-Level Namespace, right? However, if you go through the folders, you won’t be able to find the corresponding rules. It will be located under the Nursery TLN. This is the placeholder for rules that are not quite polished yet.
+
+Now that we have a good overview and understanding of the Capability and Namespace contents, we should be able to explain the sample result from the previous tasks. Therefore, let’s do a quick recap using one of the results. Shall we?
+
+```
+┌───────────────────────────────────────────┬───────────────────────────────────────────┐
+│ Capability                                │ Namespace                                 │
+├───────────────────────────────────────────┼───────────────────────────────────────────┤
+│ reference Base64 string                   │ data-manipulation/encoding/base64         │
+└───────────────────────────────────────────┴───────────────────────────────────────────┘
+```
+
+Here's the explanation for the above result. See the table below.
+
+# Capability Overview: reference base64 string
+
+| Label                 | Value                       | Explanation                                                                                                                                            |
+|-----------------------|-----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Capability**        | reference base64 string      | Malware has the capability to encode data using a base64 scheme.                                                                                      |
+| **Top-Level Namespace** | data-manipulation           | Contains a set of rules governing behaviors involved in altering data within executable files. This is the “data transformation” component of malware behavior, including actions like string encryption and data encoding. |
+| **Namespace**         | encoding/base64              | This namespace contains rules specifically for encoding and decoding data using Base64 and XOR.                                                      |
+| **Rule YAML File Matched?** | reference-base64-string.yml | The rule YAML file name matches the capability name, with dashes replacing spaces. This file defines how the rule is implemented.                     |
+
+Knowing this information, you may say this file can use the base64 encoding scheme!
+
+
+Now we’re done dissecting the results from the sample run from the previous task!
+
+**Answer the questions below**
+
+1. _What rule yaml file was matched if the Capability or rule name is check HTTP status code?_
+
+Answer: `check-http-status-code.yml`
+
+2. _What is the name of the Capability if the rule YAML file is reference-anti-vm-strings.yml?_
+
+Answer: `reference anti-VM strings`
+
+3. _Which TLN or Top-Level Namespace includes the Capability or rule name run PowerShell expression?_
+
+Answer: `load-code`
+
+4. _Check the conditions inside the check-for-windows-sandbox-via-registry.yml rule file from this [link](https://github.com/MBCProject/capa-rules-1/blob/master/anti-analysis/anti-vm/vm-detection/check-for-windows-sandbox-via-registry.yml). What is the value of the API that ends in Ex is it looking for?_
+
+Answer: `RegOpenKeyEx`
+
+**_Explanation:_**
+
+We visit [link](https://github.com/MBCProject/capa-rules-1/blob/master/anti-analysis/anti-vm/vm-detection/check-for-windows-sandbox-via-registry.yml) and we try to search for API and see the value 
+
+<img width="1453" height="703" alt="image" src="https://github.com/user-attachments/assets/ca1f4169-daeb-4631-9c89-61ff8523203a" />
+
+---
+
+**Module 7: More Information, more fun!**
+
+Aren't you curious about what precisely within the rule was matched? Well, I am!
+
+In this task, we will seek to determine the reason for triggering the rules and the conditions involved. We will use the parameter -vv  or **very verbose** to achieve this. 
+
+# CAPA Command-Line Options
+
+| Option           | Description                          | Sample Syntax                         |
+|------------------|--------------------------------------|----------------------------------------|
+| `-v` or `--verbose`   | Enable verbose result document         | `capa.exe -v .\cryptbot.bin`           |
+| `-vv` or `--vverbose` | Enable very verbose result document    | `capa.exe -vv .\cryptbot.bin`          |
+
+
+Let's run it!
+
+```
+PS C:\Users\Administrator\Desktop\capa> capa -vv .\cryptbot.bin
+loading : 100%|████████████████████| 485/485 [00:00<00:00, 1108.84     rules/s]
+/ analyzing program...
+```
+
+This will give us more detailed results; however, this will take a lot of time. We already processed this and named the file cryptbot_vv.txt in "C:\Users\Administrator\Desktop\capa". Remember, you don't need to wait for the tool to finish running; we did this so that you can get a feel for running the tool and experiment with its parameters.
+
+Open another PowerShell terminal and look inside the file using the command Get-Content cryptbot_vv.txt. 
+
+`PS C:\Users\Administrator\Desktop\capa> Get-Content .\cryptbot_vv.txt`
+
+So, have you opened the file? Do you have more than three thousand lines similar to this one?
+
+Accessing this vast amount of information using a terminal or a text editor will be challenging.
+
+To analyze this result with ease, we need to do two things. First, we will use the parameter -j and -vv, and direct the result to a .json file. The command would be capa.bin -j -vv .\cryptbot.bin > cryptbot_vv.json
+
+```
+PS C:\Users\Administrator\Desktop\capa> capa.bin -j -vv .\cryptbot.bin > cryptbot_vv.json
+loading : 100%|████████████████████| 485/485 [00:00<00:00, 1108.84     rules/s]
+/ analyzing program...
+```
+
+Again, this will take a lot of time, similar to the previous commands we run. We have processed this and created a file named  cryptbot_vv.json located in "C:\Users\Administrator\Desktop\capa".  Additionally, we've attached the file to this task. Remember, you don't need to wait for the tool to finish running; we did this so that you can get a feel for running the tool and experiment with its parameters. 
+
+We can start with our next step.
+
+**CAPA Web Explorer**
+
+The second thing we need to do is upload the file to CAPA Explorer Web. We can either use their online version here on this [link](https://mandiant.github.io/capa/explorer/#/), or the offline version already in the virtual machine. There is a Google Chrome browser on the desktop named capa_web_explorer_offline.html. Alternatively, you can access this using a regular Chrome browser bookmark. Note that the local page may take up to a minute to load in Chrome on the target machine.
+
+<img width="768" height="280" alt="image" src="https://github.com/user-attachments/assets/06d8bc2d-1289-43c6-b54f-2074ababa10b" />
+
+Now, we should have access to the homepage! 
+
+<img width="2410" height="1570" alt="image" src="https://github.com/user-attachments/assets/04947b52-d158-4f5e-8363-f4cc102589e2" />
+
+Look for the button Upload from local located at the bottom left of the page and select the file cryptbot_vv.json in C:\Users\Administrator\Desktop\capa. Once uploaded, you should have a similar output. 
+
+<img width="3728" height="924" alt="image" src="https://github.com/user-attachments/assets/90eb0d55-a78d-4070-b252-d0c41aae93c8" />
+
+Doesn't this look good and easier to use? I bet it is!
+
+
+Now, it's time to explore this excellent addition to the tool. We'll review some capabilities and check what precisely within the rule was matched. This will give us a better idea of how the rule works.
+
+Let's go through our first example below. We know that the capability was to reference anti-VM strings targeting VMWare, and the corresponding rule config file or yaml file is anti-VM-Strings-targeting-VMWare.yml. Notice the box from the image.
+
+<img width="3703" height="665" alt="image" src="https://github.com/user-attachments/assets/42f27cb1-9339-4de8-9ed1-6c7e6fae3d34" />
+
+ Then, let us show you an overview of the rule's content. Focus on the features as CAPA uses the succeeding strings below to check if strings are within the analyzed file. 
+
+```
+rule:
+  meta:
+    name: reference anti-VM strings targeting VMWare
+    namespace: anti-analysis/anti-vm/vm-detection
+    authors:
+      - michael.hunhoff@mandiant.com
+      - "@johnk3r"
+    scopes:
+      static: file
+      dynamic: file
+    att&ck:
+      - Defense Evasion::Virtualization/Sandbox Evasion::System Checks [T1497.001]
+    mbc:
+      - Anti-Behavioral Analysis::Virtual Machine Detection [B0009]
+    references:
+      - https://github.com/LordNoteworthy/al-khaser/blob/master/al-khaser/AntiVM/VMWare.cpp
+    examples:
+      - al-khaser_x86.exe_
+      - b83480162ede09d4aa6d4850f9faa0a4c3834152752fd04cfdb22d647aa1f825:0x17D80
+  features:
+    - or:
+      - string: /VMWare/i
+      - string: /VMTools/i
+      - string: /SOFTWARE\\VMware, Inc\.\\VMware Tools/i
+      - string: /VMWare/i
+      - string: /VMTools/i
+      - string: /SOFTWARE\\VMware, Inc\.\\VMware Tools/i
+      - string: /vmnet\.sys/i
+      - string: /vmmouse\.sys/i
+      - string: /vmusb\.sys/i
+      - string: /vm3dmp\.sys/i
+      - string: /vmci\.sys/i
+      - string: /vmhgfs\.sys/i
+      - string: /vmmemctl\.sys/i
+      - string: /vmx86\.sys/i
+      - string: /vmrawdsk\.sys/i
+      - string: /vmusbmouse\.sys/i
+      - string: /vmkdb\.sys/i
+      - string: /vmnetuserif\.sys/i
+      - string: /vmnetadapter\.sys/i
+      - string: /\\\\.\\HGFS/i
+      - string: /\\\\.\\vmci/i
+      - string: /vmtoolsd\.exe/i
+      - string: /vmwaretray\.exe/i
+      - string: /vmwareuser\.exe/i
+      - string: /VGAuthService\.exe/i
+      - string: /vmacthlp\.exe/i
+      - string: /vmci/i
+        description: VMWare VMCI Bus Driver
+      - string: /vmhgfs/i
+        description: VMWare Host Guest Control Redirector
+      - string: /vmmouse/i
+      - string: /vmmemctl/i
+        description: VMWare Guest Memory Controller Driver
+      - string: /vmusb/i
+      - string: /vmusbmouse/i
+      - string: /vmx_svga/i
+      - string: /vmxnet/i
+      - string: /vmx86/i
+      - string: /VMwareVMware/i
+      - string: /vmGuestLib\.dll/i
+      - string: /vmGuestLib\.dll/i
+      - string: /Applications\\VMwareHostOpen\.exe/i
+      - string: /vm3dgl\.dll/i
+      - string: /vmdum\.dll/i
+      - string: /vm3dver\.dll/i
+      - string: /vmtray\.dll/i
+      - string: /VMToolsHook\.dll/i
+      - string: /vmmousever\.dll/i
+      - string: /VmGuestLibJava\.dll/i
+      - string: /vmscsi\.sys/i
+```
+
+Did you see it? That's right! Under the features, the "string: /VMWare/i" is being referenced by CAPA Web Explorer. Simply, CAPA is saying that under this namespace, we could identify strings with a value of VMWare by using the conditions within the rule and with regex.
+
+
+Let's have another sample.  We know that the capability was to reference the scheduled task via schtasks, and the corresponding rule was to schedule the task via schtasks.yml. Notice the box from the image.
+
+<img width="3035" height="648" alt="image" src="https://github.com/user-attachments/assets/29a10e0e-cdb6-4c5d-af32-25fd635882fb" />
+
+The same applies to our first example; we will show you the rule's content overview. Focus on the features, as CAPA uses the succeeding strings below to check if there are strings within the file being analyzed. 
+
+```
+rule:
+  meta:
+    name: schedule task via schtasks
+    namespace: persistence/scheduled-tasks
+    authors:
+      - 0x534a@mailbox.org
+    scopes:
+      static: function
+      dynamic: thread
+    att&ck:
+      - Persistence::Scheduled Task/Job::Scheduled Task [T1053.005]
+    examples:
+      - 79cde1aa711e321b4939805d27e160be:0x401440
+  features:
+    - and:
+      - match: host-interaction/process/create
+      - or:
+        - and:
+          - string: /schtasks/i
+          - string: /\/create /i
+        - string: /Register-ScheduledTask /i
+```
+
+ Under the feature, the "string: /schtasks/i and /\/create /i" is referenced by CAPA Web Explorer. Simply, CAPA is saying under this namespace, and by using the conditions within the rule and with regex, we could identify strings with a value of schtasks and create. 
+
+**Global Search Box**
+
+Another cool feature of this tool is its filter options and the Global Search box, which are very helpful.
+
+<img width="3595" height="454" alt="image" src="https://github.com/user-attachments/assets/af6c98c0-ea1c-4d3d-93bb-53e1863ddf05" />
+
+We could quickly examine this overwhelming information using CAPA Web Explorer compared to any text editor. 
+
+Feel free to explore more! 
+
+**Answer the questions below**
+
+1. _Which parameter allows you to output the result of CAPA into a .json file?_
+
+Answer: `-j`
+
+2. _What tool allows you to interactively explore CAPA results in your web browser?_
+
+Answer: `CAPA Web Explorer`
+
+3. _Which feature of this CAPA Web Explorer allows you to filter options or results?_
+
+Answer: `Global Search Box`
+
+---
+
+**Module 8: Conclusion**
+
+In this room, we discussed how CAPA is leveraged and plays a critical role in cyber security by analyzing potentially malicious or dangerous software and proactively searching for potential threats using static analysis. It achieves this by automating the process of detecting intricate functionalities within executable files and presenting the findings in an easily understandable format for security experts. This simplification of complex reverse engineering concepts aids in swiftly comprehending potentially harmful software, ultimately strengthening incident response and defensive strategies. 
+
+**Answer the questions below**
+
+1. _This room was fantastic! Let's proceed with other rooms for continuous learning!_
+
+Answer: No answer needed
+
+---
