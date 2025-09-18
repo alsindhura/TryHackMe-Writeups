@@ -93,7 +93,7 @@ Answer: `MD5`
 
 **Task 5: Finding IDORs in Unpredictable IDs**
 
-Unpredictable IDs
+**Unpredictable IDs**
 
 If the Id cannot be detected using the above methods, an excellent method of IDOR detection is to create two accounts and swap the Id numbers between them. If you can view the other users' content using their Id number while still being logged in with a different account (or not logged in at all), you've found a valid IDOR
 
@@ -163,14 +163,9 @@ Now we open dev tools go to network tab and we can see an entry with `id`
 
 <img width="1134" height="963" alt="image" src="https://github.com/user-attachments/assets/88192247-7a17-47a4-bc22-a179f2a32d9b" />
 
-We try to change this paramter to 1 and resend the request
+We try to change this paramter to 1 and when we try `http://10.201.108.163/api/v1/customer?id=1`, we can see the username
 
-<img width="1071" height="311" alt="image" src="https://github.com/user-attachments/assets/afa25ac3-06c9-436d-adac-c4abef741289" />
-
-Now we select the entry with the id as 1 and in the response we can see the username and email
-
-<img width="1138" height="963" alt="image" src="https://github.com/user-attachments/assets/8fbd886a-1b95-4c09-8ef6-0c584a44bac7" />
-
+<img width="592" height="209" alt="image" src="https://github.com/user-attachments/assets/2307eda5-c725-423c-99ea-51d111159bca" />
 
 2. _What is the email address for user id 3?_
 
@@ -178,11 +173,8 @@ Answer: `j@fakemail.thm`
 
 **_Explanation:_**
 
-We change the id to 3 and in the response we can see the username and email
+We change the id to 3 and try `http://10.201.108.163/api/v1/customer?id=3`, we can see the email address
 
-
-<img width="1130" height="925" alt="image" src="https://github.com/user-attachments/assets/5781bf48-f949-4394-bc1e-7cba4a6d8aac" />
-
-<img width="1136" height="851" alt="image" src="https://github.com/user-attachments/assets/dee21199-4e05-464e-a9a9-41e4b4154c06" />
+<img width="614" height="194" alt="image" src="https://github.com/user-attachments/assets/4ade88b2-367e-4f23-a189-12742b9733c2" />
 
 ---
